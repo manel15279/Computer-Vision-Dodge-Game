@@ -8,6 +8,14 @@ class GameObject:
         self.x = x
         self.y = y
         
+    def update_position(self):
+        self.x += self.speed
+        # Wrap around if the object goes beyond the edges
+        if self.x < 0:
+            self.x = 200  # Assuming the width of the frame is 640, adjust accordingly
+        elif self.x > 600:
+            self.x = 400
+
     def draw(self, frame):
         self.pixel_character[12:18, 12:18, :] = [0, 0, 0]
         self.pixel_character[12:18, 30:36, :] = [0, 0, 0]
@@ -18,21 +26,6 @@ class GameObject:
         frame[self.y:self.y + self.pixel_character.shape[0],
         self.x:self.x + self.pixel_character.shape[1], :] = self.pixel_character
 
-    def update_position(self, direction, frame):
-        frame[:] = 255
-        if direction == 2424832:
-            self.x -= self.speed
-        elif direction == 2555904:
-            self.x += self.speed
-    
-
-        # Wrap around if the object goes beyond the edges
-        if self.x < 0:
-            self.x = 200  # Assuming the width of the frame is 640, adjust accordingly
-        elif self.x > 600:
-            self.x = 400
-
-        self.draw(frame)
 
 def Object_Color_Detection(image, surfacemin, surfacemax, lo, hi):
     points = []
@@ -53,9 +46,18 @@ def Object_Color_Detection(image, surfacemin, surfacemax, lo, hi):
 
 lower_red = np.array([0, 50, 50])
 upper_red = np.array([10, 255, 255])
+speed = 400
+step = 30
 
 VideoCap = cv2.VideoCapture(0)
-
+game_object = GameObject(speed=0, x=125, y=200)
+def move(dest):
+    if dest == "Left":
+        game_object.speed = -5
+    elif dest == "Right":
+        game_object.speed = 5
+    elif dest == "Stop":
+        game_object.speed = 0
 # Main loop for capturing and processing video frames
 while True:
     # Read a frame from the video capture
@@ -79,13 +81,6 @@ while True:
     video_capture_part[:, :, :] = frame[:, :video_capture_width, :]
     game_frame_part[:, :, :] = game_frame[:, :game_frame_width, :]
 
-    game_object = GameObject(speed=48, x=125, y=200)
-    game_object.draw(game_frame_part)
-    
-
-    # Concatenate the three parts to get the final white frame
-    white_frame = np.concatenate((video_capture_part, game_frame_part, score_speed_part), axis=1)
-
 
     # Call the detect_inrange function to process the frame and detect objects
     image, mask, points = Object_Color_Detection(game_frame_part, 3000, 7000, lower_red, upper_red)
@@ -98,15 +93,26 @@ while True:
     if len(points) > 0:
         cv2.circle(frame, (points[0][0], points[0][1]), 10, (0, 0, 255), 2)
 
+    game_object.update_position()
+    game_object.draw(game_frame_part)
+
+    white_frame = np.concatenate((video_capture_part, game_frame_part, score_speed_part), axis=1)
+
+
     # Display the mask and the original frame with overlays
     if mask is not None:
         cv2.imshow('frame', white_frame)
 
-    key = cv2.waitKeyEx(10)
+    key = cv2.waitKey(10)
     if key == ord('q'):
         break
+    elif key == ord('a'):
+        move("Left")
+    elif key == ord('d'):
+        move("Right")
+    elif key == ord('s'):
+        move("Stop")
 
-    game_object.update_position(key, game_frame_part)
     # Concatenate the three parts to get the final white frame
     white_frame = np.concatenate((video_capture_part, game_frame_part, score_speed_part), axis=1)
 
