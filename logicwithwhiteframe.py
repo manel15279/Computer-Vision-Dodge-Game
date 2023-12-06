@@ -1,5 +1,7 @@
 import cv2
 import numpy as np
+import random
+import time
 
 class GameObject:
     def __init__(self, speed, x, y):
@@ -7,14 +9,14 @@ class GameObject:
         self.speed = speed
         self.x = x
         self.y = y
-        
+
     def update_position(self):
         self.x += self.speed
         # Wrap around if the object goes beyond the edges
         if self.x < 0:
-            self.x = 200  # Assuming the width of the frame is 640, adjust accordingly
-        elif self.x > 600:
-            self.x = 400
+            self.x = 0  # Assuming the width of the frame is 640, adjust accordingly
+        elif self.x > 200:
+            self.x = 200
 
     def draw(self, frame):
         self.pixel_character[12:18, 12:18, :] = [0, 0, 0]
@@ -23,9 +25,10 @@ class GameObject:
         self.pixel_character[24:30, 12:36, :] = [20, 128, 203]
         self.pixel_character[30:36, 18:30, :] = [34, 35, 188]
         self.pixel_character[36:42, 18:30, :] = [48, 35, 169]
-        frame[self.y:self.y + self.pixel_character.shape[0],
-        self.x:self.x + self.pixel_character.shape[1], :] = self.pixel_character
-
+        frame[
+            self.y : self.y + self.pixel_character.shape[0],
+            self.x : self.x + self.pixel_character.shape[1],
+        ] = self.pixel_character
 
 def Object_Color_Detection(image, surfacemin, surfacemax, lo, hi):
     points = []
@@ -43,7 +46,6 @@ def Object_Color_Detection(image, surfacemin, surfacemax, lo, hi):
             break
     return image, mask, points
 
-
 lower_red = np.array([0, 50, 50])
 upper_red = np.array([10, 255, 255])
 speed = 400
@@ -51,6 +53,7 @@ step = 30
 
 VideoCap = cv2.VideoCapture(0)
 game_object = GameObject(speed=0, x=125, y=200)
+
 def move(dest):
     if dest == "Left":
         game_object.speed = -5
@@ -58,6 +61,42 @@ def move(dest):
         game_object.speed = 5
     elif dest == "Stop":
         game_object.speed = 0
+
+def generate_obstacle(frame, obstacles):
+    obstacle = np.ones((15, 15, 3), dtype=np.uint8) * [0, 255, 0]  # Green color
+    obstacle_height = random.randint(0, frame.shape[0] - obstacle.shape[0])
+    
+    # Randomly choose left or right side
+    side = random.choice(['left', 'right'])
+    
+    obstacles.append((obstacle_height, side))  # Store obstacle position
+
+    for obstacle_height, side in obstacles:
+        if side == 'left':
+            frame[
+                obstacle_height : obstacle_height + obstacle.shape[0],
+                : obstacle.shape[1],
+            ] = obstacle
+        else:
+            frame[
+                obstacle_height : obstacle_height + obstacle.shape[0],
+                -obstacle.shape[1] :,
+            ] = obstacle # Store obstacle position
+
+def initialize_fixed_obstacles(frame, obstacles):
+    # Create fixed obstacles at the left and right borders
+    obstacle = np.ones((15, 15, 3), dtype=np.uint8) * [0, 255, 0]  # Green color
+    
+    for i in range(10):
+        # Left border
+        obstacles.append((0, 'left'))
+        frame[0 : obstacle.shape[0], : obstacle.shape[1]] = obstacle
+        
+        # Right border
+        obstacles.append((0, 'right'))
+        frame[0 : obstacle.shape[0], -obstacle.shape[1] :] = obstacle
+
+obstacles = []
 # Main loop for capturing and processing video frames
 while True:
     # Read a frame from the video capture
@@ -81,7 +120,6 @@ while True:
     video_capture_part[:, :, :] = frame[:, :video_capture_width, :]
     game_frame_part[:, :, :] = game_frame[:, :game_frame_width, :]
 
-
     # Call the detect_inrange function to process the frame and detect objects
     image, mask, points = Object_Color_Detection(game_frame_part, 3000, 7000, lower_red, upper_red)
 
@@ -96,8 +134,17 @@ while True:
     game_object.update_position()
     game_object.draw(game_frame_part)
 
-    white_frame = np.concatenate((video_capture_part, game_frame_part, score_speed_part), axis=1)
+    # Initialize fixed obstacles at the left and right borders
+    initialize_fixed_obstacles(game_frame_part, obstacles)
 
+    # Generate a new obstacle position each time the background moves
+    generate_obstacle(game_frame_part, obstacles)
+
+    # Scroll the background downward
+    game_frame_part = np.roll(game_frame_part, -1, axis=0)
+
+    # Combine the three parts to get the final white frame
+    white_frame = np.concatenate((video_capture_part, game_frame_part, score_speed_part), axis=1)
 
     # Display the mask and the original frame with overlays
     if mask is not None:
@@ -113,8 +160,6 @@ while True:
     elif key == ord('s'):
         move("Stop")
 
-    # Concatenate the three parts to get the final white frame
-    white_frame = np.concatenate((video_capture_part, game_frame_part, score_speed_part), axis=1)
 
 # Release the video capture object and close all windows
 VideoCap.release()
