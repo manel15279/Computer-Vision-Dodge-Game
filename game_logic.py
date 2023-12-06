@@ -10,21 +10,21 @@ class Player:
         self.y = height - self.h
 
     def move_left(self):
-        self.x -= 15
+        self.x -= 20
 
     def move_right(self):
-        self.x += 15
+        self.x += 20
 
     def display(self, img):
         cv2.rectangle(img, (self.x, self.y), (self.x + self.w, self.y + self.h), (0, 0, 255), -1)
 
 class Enemy:
-    def __init__(self, width):
+    def __init__(self, width, speed):
         self.w = 50
         self.h = 50
         self.x = random.randint(0, width - self.w)
         self.y = 0 - self.h
-        self.speed = 10
+        self.speed = speed
 
     def collision(self, obj):
         if obj.x < self.x < obj.x + obj.w and obj.y < self.y < obj.y + obj.h:
@@ -68,6 +68,7 @@ score = 0
 VideoCap = cv2.VideoCapture(0)
 lower_red = np.array([0, 50, 50])
 upper_red = np.array([10, 255, 255])
+speed = 5
 
 while True:
 
@@ -84,7 +85,7 @@ while True:
         cv2.putText(img, "Score: {}".format(score), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
 
         if random.randint(0, 30) == 0:
-            enemies.append(Enemy(game_frame_width))
+            enemies.append(Enemy(game_frame_width, speed))
 
         player.display(img)
         for enemy in enemies:
@@ -95,6 +96,8 @@ while True:
             elif enemy.out_of_bounds(height):
                 enemies.remove(enemy)
                 score += 1
+                if score % 5 == 0:
+                    speed += 2
     else:
         img[:, :] = [0, 0, 255]  # Red background
         
