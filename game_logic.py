@@ -40,6 +40,24 @@ class Enemy:
         self.y += self.speed
         cv2.rectangle(img, (self.x, self.y), (self.x + self.w, self.y + self.h), (0, 0, 0), -1)
 
+
+def Object_Color_Detection(image, surfacemin, surfacemax, lo, hi):
+    points = []
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    mask = cv2.inRange(image, lo, hi)
+    mask = cv2.erode(mask, None, iterations=2)
+    mask = cv2.dilate(mask, None, iterations=2)
+    elements = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
+    elements = sorted(elements, key=lambda x: cv2.contourArea(x), reverse=True)
+    for element in elements:
+        if surfacemin < cv2.contourArea(element) < surfacemax:
+            ((x, y), rayon) = cv2.minEnclosingCircle(element)
+            points.append(np.array([int(x), int(y), int(rayon)]))
+        else:
+            break
+    return image, mask, points
+
+
 # Initialize game parameters
 width, height = 640, 480
 player = Player(width, height)
@@ -48,6 +66,8 @@ game_mode = False
 score = 0
 
 VideoCap = cv2.VideoCapture(0)
+lower_red = np.array([0, 50, 50])
+upper_red = np.array([10, 255, 255])
 
 while True:
 
@@ -83,6 +103,9 @@ while True:
     # Replace each part with the corresponding content
     img_capture[:, :video_capture_width, :] = frame[:, :video_capture_width, :]
     img_capture[:, video_capture_width: video_capture_width + game_frame_width, :] = img[:, :game_frame_width, :]
+
+    image, mask, points = Object_Color_Detection(img_capture[:, :video_capture_width, :], 3000, 7000, lower_red, upper_red)
+
 
     cv2.imshow('Split Interface', img_capture)
 
