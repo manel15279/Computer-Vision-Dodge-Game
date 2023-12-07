@@ -10,10 +10,11 @@ class Player:
         self.y = height - self.h
 
     def move_left(self):
-        self.x -= 20
+        self.x = max(0, self.x - 20)  # Ensure the player stays within the left border
 
-    def move_right(self):
-        self.x += 20
+    def move_right(self, width):
+        self.x = min(width - self.w, self.x + 20)  # Ensure the player stays within the right border
+
 
     def display(self, img):
         cv2.rectangle(img, (self.x, self.y), (self.x + self.w, self.y + self.h), (0, 0, 255), -1)
@@ -40,6 +41,27 @@ class Enemy:
         self.y += self.speed
         cv2.rectangle(img, (self.x, self.y), (self.x + self.w, self.y + self.h), (0, 0, 0), -1)
 
+class BorderEnemy:
+    def __init__(self, x, speed):
+        self.w = 25
+        self.h = 25
+        self.x = x
+        self.y = random.randint(-height, 0)
+        self.speed = speed
+
+    def collision(self, obj):
+        if obj.x < self.x < obj.x + obj.w and obj.y < self.y < obj.y + obj.h:
+            return True
+        return False
+
+    def out_of_bounds(self, height):
+        if self.y > height:
+            return True
+        return False
+
+    def display(self, img):
+        self.y += self.speed
+        cv2.rectangle(img, (self.x, self.y), (self.x + self.w, self.y + self.h), (0, 0, 0), -1)
 
 def Object_Color_Detection(image, surfacemin, surfacemax, lo, hi):
     points = []
@@ -57,10 +79,9 @@ def Object_Color_Detection(image, surfacemin, surfacemax, lo, hi):
             break
     return image, mask, points
 
-
 # Initialize game parameters
 width, height = 640, 480
-player = Player(width, height)
+player = Player(290, height)
 enemies = []
 game_mode = False
 score = 0
@@ -73,19 +94,22 @@ speed = 5
 while True:
 
     ret, frame = VideoCap.read()
-    print(frame.shape)
 
     video_capture_width = 320
     game_frame_width = 320
 
     img = np.ones((height, width, 3), dtype=np.uint8) * 255  # White background
 
-
     if game_mode:
         cv2.putText(img, "Score: {}".format(score), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
+        cv2.putText(img, "Speed: {}".format(speed), (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
 
-        if random.randint(0, 30) == 0:
-            enemies.append(Enemy(game_frame_width, speed))
+        if random.randint(0, 35) == 0:
+            border_enemy_left = BorderEnemy(0, speed)
+            border_enemy_right = BorderEnemy(game_frame_width - border_enemy_left.w, speed)
+            enemies.append(Enemy(game_frame_width - border_enemy_left.w - border_enemy_right.w, speed))
+            enemies.append(border_enemy_left)
+            enemies.append(border_enemy_right)
 
         player.display(img)
         for enemy in enemies:
@@ -96,11 +120,12 @@ while True:
             elif enemy.out_of_bounds(height):
                 enemies.remove(enemy)
                 score += 1
-                if score % 5 == 0:
-                    speed += 2
+                if score % 10 == 0:
+                    speed += 1
+
     else:
         img[:, :] = [0, 0, 255]  # Red background
-        
+
     img_capture = np.ones((height, width, 3), dtype=np.uint8) * 255  # White background for video capture
 
     # Replace each part with the corresponding content
@@ -109,11 +134,10 @@ while True:
 
     image, mask, points = Object_Color_Detection(img_capture[:, :video_capture_width, :], 3000, 7000, lower_red, upper_red)
 
-
-    cv2.imshow('Split Interface', img_capture)
+    cv2.imshow('Game Interface', img_capture)
 
     key = cv2.waitKey(10)
-    if key == ord('q'):  
+    if key == ord('q'):
         break
     elif key == ord(' '):  # Space key to start/restart the game
         score = 0
@@ -121,6 +145,6 @@ while True:
     elif key == ord('a'):
         player.move_left()
     elif key == ord('d'):
-        player.move_right()
+        player.move_right(game_frame_width)
 
 cv2.destroyAllWindows()
