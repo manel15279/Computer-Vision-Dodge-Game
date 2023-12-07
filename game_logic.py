@@ -141,6 +141,7 @@ while True:
         break
     elif key == ord(' '):  # Space key to start/restart the game
         score = 0
+        speed = 5
         game_mode = True
     elif key == ord('a'):
         player.move_left()
