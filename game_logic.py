@@ -1,6 +1,7 @@
 import cv2
 import numpy as np
 import random
+import time
 
 class Player:
     def __init__(self, width, height):
@@ -91,6 +92,11 @@ lower_red = np.array([0, 50, 50])
 upper_red = np.array([10, 255, 255])
 speed = 5
 
+last_enemy_time = 0  # Variable to track the time when the last enemy was displayed
+enemy_delay = 0.5
+
+nbr_enemies = 40
+
 while True:
 
     ret, frame = VideoCap.read()
@@ -103,13 +109,15 @@ while True:
     if game_mode:
         cv2.putText(img, "Score: {}".format(score), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
         cv2.putText(img, "Speed: {}".format(speed), (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
+        cv2.putText(img, "nbr enemies: {}".format(nbr_enemies), (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
 
-        if random.randint(0, 35) == 0:
+        if random.randint(0, nbr_enemies) == 0 and time.time() - last_enemy_time > enemy_delay:
             border_enemy_left = BorderEnemy(0, speed)
             border_enemy_right = BorderEnemy(game_frame_width - border_enemy_left.w, speed)
             enemies.append(Enemy(game_frame_width - border_enemy_left.w - border_enemy_right.w, speed))
             enemies.append(border_enemy_left)
             enemies.append(border_enemy_right)
+            last_enemy_time = time.time()  # Update the last enemy display time
 
         player.display(img)
         for enemy in enemies:
@@ -122,6 +130,8 @@ while True:
                 score += 1
                 if score % 10 == 0:
                     speed += 1
+                    if nbr_enemies > 10:
+                        nbr_enemies -= 2
 
     else:
         img[:, :] = [0, 0, 255]  # Red background
@@ -143,6 +153,7 @@ while True:
         score = 0
         speed = 5
         game_mode = True
+        nbr_enemies = 40
     elif key == ord('a'):
         player.move_left()
     elif key == ord('d'):
