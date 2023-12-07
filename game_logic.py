@@ -24,7 +24,7 @@ class Enemy:
     def __init__(self, width, speed):
         self.w = 50
         self.h = 50
-        self.x = random.randint(0, width - self.w)
+        self.x = random.randint(25, width - 25)
         self.y = 0 - self.h
         self.speed = speed
 
@@ -95,7 +95,7 @@ speed = 5
 last_enemy_time = 0  # Variable to track the time when the last enemy was displayed
 enemy_delay = 0.5
 
-nbr_enemies = 40
+nbr_enemies = 30
 
 while True:
 
@@ -109,7 +109,6 @@ while True:
     if game_mode:
         cv2.putText(img, "Score: {}".format(score), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
         cv2.putText(img, "Speed: {}".format(speed), (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
-        cv2.putText(img, "nbr enemies: {}".format(nbr_enemies), (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
 
         if random.randint(0, nbr_enemies) == 0 and time.time() - last_enemy_time > enemy_delay:
             border_enemy_left = BorderEnemy(0, speed)
@@ -130,7 +129,7 @@ while True:
                 score += 1
                 if score % 10 == 0:
                     speed += 1
-                    if nbr_enemies > 10:
+                    if nbr_enemies > 5:
                         nbr_enemies -= 2
 
     else:
@@ -153,7 +152,7 @@ while True:
         score = 0
         speed = 5
         game_mode = True
-        nbr_enemies = 40
+        nbr_enemies = 30
     elif key == ord('a'):
         player.move_left()
     elif key == ord('d'):
