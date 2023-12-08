@@ -29,9 +29,10 @@ class Enemy:
         self.speed = speed
 
     def collision(self, obj):
-        if obj.x < self.x < obj.x + obj.w and obj.y < self.y < obj.y + obj.h:
-            return True
-        return False
+        x_overlap = max(0, min(obj.x + obj.w, self.x + self.w) - max(obj.x, self.x))
+        y_overlap = max(0, min(obj.y + obj.h, self.y + self.h) - max(obj.y, self.y))
+        overlap_area = x_overlap * y_overlap
+        return overlap_area > 0
 
     def out_of_bounds(self, height):
         if self.y > height:
@@ -51,9 +52,10 @@ class BorderEnemy:
         self.speed = speed
 
     def collision(self, obj):
-        if obj.x < self.x < obj.x + obj.w and obj.y < self.y < obj.y + obj.h:
-            return True
-        return False
+        x_overlap = max(0, min(obj.x + obj.w, self.x + self.w) - max(obj.x, self.x))
+        y_overlap = max(0, min(obj.y + obj.h, self.y + self.h) - max(obj.y, self.y))
+        overlap_area = x_overlap * y_overlap
+        return overlap_area > 0
 
     def out_of_bounds(self, height):
         if self.y > height:
