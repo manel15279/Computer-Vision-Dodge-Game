@@ -131,6 +131,8 @@ while True:
                     speed += 1
                     if nbr_enemies > 5:
                         nbr_enemies -= 2
+                    for enemy in enemies:
+                        enemy.speed = speed
 
     else:
         img[:, :] = [0, 0, 255]  # Red background
