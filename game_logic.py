@@ -93,7 +93,7 @@ upper_red = np.array([10, 255, 255])
 speed = 5
 
 last_enemy_time = 0  # Variable to track the time when the last enemy was displayed
-enemy_delay = 0.5
+enemy_delay = 0.6
 
 nbr_enemies = 30
 
@@ -118,9 +118,12 @@ while True:
             enemies.append(border_enemy_right)
             last_enemy_time = time.time()  # Update the last enemy display time
 
-        player.display(img)
+        # Update enemy positions first
         for enemy in enemies:
             enemy.display(img)
+
+        # Check for collisions or out-of-bounds after updating positions
+        for enemy in enemies:
             if enemy.collision(player):
                 enemies = []
                 game_mode = False
@@ -133,6 +136,8 @@ while True:
                         nbr_enemies -= 2
                     for enemy in enemies:
                         enemy.speed = speed
+
+        player.display(img)
 
     else:
         img[:, :] = [0, 0, 255]  # Red background
