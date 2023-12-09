@@ -161,14 +161,17 @@ class Enemy:
         return False
 
     def display(self, img):
-        self.y += self.speed
-        enemy_character_rgb = self.enemy_character[:, :, :3]
-        y_start = max(0, self.y)
-        y_end = min(img.shape[0], self.y + self.h)
-        x_start = max(0, self.x)
-        x_end = min(img.shape[1], self.x + self.w)
+        self.y += self.speed  
 
-        img[y_start:y_end, x_start:x_end, :] = enemy_character_rgb[:y_end - y_start, :x_end - x_start, :]
+        # Check if the updated position is still within the valid range of the image
+        if 0 <= self.y < img.shape[0]:
+            enemy_character_rgb = self.enemy_character[:, :, :3]
+            y_start = max(0, self.y)
+            y_end = min(img.shape[0], self.y + self.h)
+            x_start = max(0, self.x)
+            x_end = min(img.shape[1], self.x + self.w)
+
+            img[y_start:y_end, x_start:x_end, :] = enemy_character_rgb[:y_end - y_start, :x_end - x_start, :]
 
 class BorderEnemy:
     def __init__(self, x, speed):
@@ -242,6 +245,7 @@ last_enemy_time = 0  # Variable to track the time when the last enemy was displa
 enemy_delay = 0.6
 
 nbr_enemies = 30
+vision = False
 
 while True:
 
@@ -289,12 +293,12 @@ while True:
         img[:, :] = [0, 0, 255]  # Red background
 
     
-    # Concatenate images verticall
-    mask = detect_inrange(frame)
-    centre=center(mask)
-    cv2.circle(frame, centre, 5, (0, 0, 255),-1)
-    player.x=centre[0]
-    #player.y=centre[1]
+    # # Concatenate images verticall
+    # mask = detect_inrange(frame)
+    # centre=center(mask)
+    # cv2.circle(frame, centre, 5, (0, 0, 255),-1)
+    # player.x=centre[0]
+    # #player.y=centre[1]
     concatenated_image = cv2.vconcat([img, frame])
 
     
@@ -308,9 +312,11 @@ while True:
         speed = 10
         game_mode = True
         nbr_enemies = 30
-    elif key == ord('a'):
-        player.move_left()
-    elif key == ord('d'):
-        player.move_right(width)
-
+    elif key == ord('v'):
+        vision=True
+    if not vision:
+        if key == ord('a'):
+            player.move_left()
+        elif key == ord('d'):
+            player.move_right(width)
 cv2.destroyAllWindows()
