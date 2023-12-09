@@ -318,7 +318,7 @@ def button_function_9(img):
 
 def close():
     root.destroy()
-    subprocess.run(["python", "Game.py"])
+    subprocess.run(["python", "game_logic.py"])
 
 
 
