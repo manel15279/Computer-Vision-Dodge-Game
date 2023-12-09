@@ -1,4 +1,5 @@
 import subprocess
+import time
 import customtkinter as ctk
 import tkinter
 import tkinter as tk
@@ -8,6 +9,7 @@ import cv2
 import numpy as np
 import threading
 
+#====================objectDetection==============================
 stop_detection_flag = False
 def update_canvas(frame, mask):
     global frame_photo, mask_photo
@@ -75,6 +77,46 @@ def button_function_11():
     # Exécuter object_Detection_Color dans un thread
     threading.Thread(target=object_Detection_Color).start()
 
+#=================================================Invisibility
+
+
+def invisibility():
+    global stop_detection_flag
+    stop_detection_flag = False
+
+    VideoCap = cv2.VideoCapture(0)
+    time.sleep(2)
+    ret, background = VideoCap.read()
+    cv2.flip(background,1, background)
+    background=function_Interface.resize(background)
+    VideoCap.release()
+    VideoCap = cv2.VideoCapture(0)
+    while True:
+        if not VideoCap.isOpened():
+            print("Video capture is not open.")
+            break
+        ret, frame = VideoCap.read()
+        cv2.flip(frame,1, frame)
+        frame=function_Interface.resize(frame)
+        mask = function_Interface.detect_inrange(frame)
+        function_Interface.dilateV(frame,background,mask,np.ones((5,5)))
+    
+        if mask is not None:
+            #cv2.imshow('mask', mask)
+            #cv2.imshow('frame', frame)
+            update_canvas(frame, mask)
+        # Break out of the loop if the stop_detection_flag is True
+        if stop_detection_flag:
+            break
+
+        if cv2.waitKey(10) & 0xFF == ord('q'):
+            break
+    VideoCap.release()
+    cv2.destroyAllWindows()
+
+def button_function_12():
+    # Exécuter object_Detection_Color dans un thread
+    threading.Thread(target=invisibility).start()
 #============================
 def display_image_on_canvas(image_path):
     # Open the image file
@@ -276,7 +318,7 @@ def button_function_9(img):
 
 def close():
     root.destroy()
-    subprocess.run(["python", "test.py"])
+    subprocess.run(["python", "Game.py"])
 
 
 
@@ -329,13 +371,15 @@ def clean():
 input_frame3 = ctk.CTkFrame(root)
 input_frame3.pack(side="left", expand=True, padx=20, pady=20)
 generate_button10 = ctk.CTkButton(input_frame3, text="Jeu", command=close)
-generate_button10.grid(row=13, column=0, columnspan=2, sticky="news", padx=10, pady=10)
+generate_button10.grid(row=14, column=0, columnspan=2, sticky="news", padx=10, pady=10)
+generate_button14 = ctk.CTkButton(input_frame3, text="Invisibility", command=button_function_12)
+generate_button14.grid(row=13, column=0, columnspan=2, sticky="news", padx=10, pady=10)
 generate_button11 = ctk.CTkButton(input_frame3, text="ObjectDetection", command=button_function_11)
 generate_button11.grid(row=12, column=0, columnspan=2, sticky="news", padx=10, pady=10)
 generate_button12 = ctk.CTkButton(input_frame3, text="Stop", command=stop)
-generate_button12.grid(row=14, column=0, columnspan=2, sticky="news", padx=10, pady=10)
+generate_button12.grid(row=15, column=0, columnspan=2, sticky="news", padx=10, pady=10)
 generate_button13 = ctk.CTkButton(input_frame3, text="Clean", command=clean)
-generate_button13.grid(row=15, column=0, columnspan=2, sticky="news", padx=10, pady=10)
+generate_button13.grid(row=16, column=0, columnspan=2, sticky="news", padx=10, pady=10)
 
 
 canvas = tkinter.Canvas(root, width=740, height=screen_height)
