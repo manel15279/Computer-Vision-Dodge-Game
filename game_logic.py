@@ -109,6 +109,7 @@ def resize(img):
      for y in range(0,int(img.shape[0]/2.5)):
          for x in range(0,int(img.shape[1]/2.5)):
              img2[y,x,:]=img[int(y*2.5),int(x*2.5),:]
+     print(img2.shape)
      return img2
 
         
@@ -116,8 +117,8 @@ def resize(img):
 
 class Player:
     def __init__(self, width, height):
-        self.w = 50
-        self.h = 50
+        self.w = 48
+        self.h = 48
         self.x = width // 2
         self.y = height - self.h
 
@@ -129,13 +130,21 @@ class Player:
 
 
     def display(self, img):
-        cv2.rectangle(img, (self.x, self.y), (self.x + self.w, self.y + self.h), (0, 0, 255), -1)
+        player_character = np.ones((self.h, self.w, 3), dtype=np.uint8) * 255
+        player_character[12:18, 12:18, :] = [0, 0, 0]
+        player_character[12:18, 30:36, :] = [0, 0, 0]
+        player_character[18:24, 12:36, :] = [12, 171, 233]
+        player_character[24:30, 12:36, :] = [20, 128, 203]
+        player_character[30:36, 18:30, :] = [34, 35, 188]
+        player_character[36:42, 18:30, :] = [48, 35, 169]
 
+        # Place the player character onto the main image
+        img[self.y:self.y + self.h, self.x:self.x + self.w, :] = player_character
 class Enemy:
     def __init__(self, width, speed):
-        self.w = 50
-        self.h = 50
-        self.x = random.randint(25, width - 25)
+        self.w = 48
+        self.h = 48
+        self.x = random.randint(24, width - 24)
         self.y = 0 - self.h
         self.speed = speed
 
@@ -152,7 +161,43 @@ class Enemy:
 
     def display(self, img):
         self.y += self.speed
-        cv2.rectangle(img, (self.x, self.y), (self.x + self.w, self.y + self.h), (0, 0, 0), -1)
+        enemy_character = np.ones((self.h, self.w, 3), dtype=np.uint8) * 255
+        enemy_character[0:6, 0:18, :] = [222, 222, 228]
+        enemy_character[0:6, 30:48, :] = [222, 222, 228]
+        enemy_character[6:12, 0:18, :] = [194, 194, 200]
+        enemy_character[6:12, 30:48, :] = [194, 194, 200]
+        enemy_character[12:18, 0:48, :] = [194, 194, 200]
+        enemy_character[12:18, 12:18, :] = [181, 181, 188]
+        enemy_character[12:18, 30:36, :] = [181, 181, 188]
+        enemy_character[18:24, 12:18, :] = [0, 0, 0]
+        enemy_character[18:24, 30:36, :] = [0, 0, 0]
+        enemy_character[18:24, 18:30, :] = [116, 135, 162]
+        enemy_character[24:30, 0:6, :] = [116, 135, 162]
+        enemy_character[24:30, 42:48, :] = [116, 135, 162]
+        enemy_character[24:36, 6:12, :] = [137, 140, 154]
+        enemy_character[24:36, 36:42, :] = [137, 140, 154]
+        enemy_character[24:30, 12:36, :] = [214, 219, 234]
+        enemy_character[24:30, 0:6, :] = [82, 110, 140]
+        enemy_character[30:36, 42:48, :] = [82, 110, 140]
+        enemy_character[30:36, 12:36, :] = [214, 219, 234]
+        enemy_character[36:42, 0:6, :] = [116, 135, 162]
+        enemy_character[36:42, 42:48, :] = [116, 135, 162]
+        enemy_character[36:42, 6:12, :] = [214, 219, 234]
+        enemy_character[36:42, 36:42, :] = [214, 219, 234]
+        enemy_character[36:42, 12:36, :] = [69, 64, 65]
+        enemy_character[42:48, 0:18, :] = [222, 222, 228]
+        enemy_character[42:48, 30:48, :] = [222, 222, 228]
+        enemy_character[48:54, 18:30, :] = [69, 64, 65]
+
+        # Calculate the valid range to place the enemy character
+        y_start = max(0, self.y)
+        y_end = min(img.shape[0], self.y + self.h)
+        x_start = max(0, self.x)
+        x_end = min(img.shape[1], self.x + self.w)
+
+        # Place the enemy character onto the main image
+        img[y_start:y_end, x_start:x_end, :] = enemy_character[:y_end - y_start, :x_end - x_start, :]
+
 
 class BorderEnemy:
     def __init__(self, x, speed):
@@ -176,22 +221,46 @@ class BorderEnemy:
     def display(self, img):
         self.y += self.speed
         cv2.rectangle(img, (self.x, self.y), (self.x + self.w, self.y + self.h), (0, 0, 0), -1)
-
-
+def resize(img):
+     img2=np.zeros(((int(img.shape[0]/2.5))+1,(int(img.shape[1]//2.5))+1,3),img.dtype)
+     for y in range(0,int(img.shape[0]/2.5)):
+         for x in range(0,int(img.shape[1]/2.5)):
+             img2[y,x,:]=img[int(y*2.5),int(x*2.5),:]
+     print(img2.shape)
+     return img2
+def Object_Color_Detection(image, surfacemin, surfacemax, lo, hi):
+    points = []
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    mask = cv2.inRange(image, lo, hi)
+    mask = cv2.erode(mask, None, iterations=2)
+    mask = cv2.dilate(mask, None, iterations=2)
+    elements = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
+    elements = sorted(elements, key=lambda x: cv2.contourArea(x), reverse=True)
+    for element in elements:
+        if surfacemin < cv2.contourArea(element) < surfacemax:
+            ((x, y), rayon) = cv2.minEnclosingCircle(element)
+            points.append(np.array([int(x), int(y), int(rayon)]))
+        else:
+            break
+    return image, mask, points
 
 # Initialize game parameters
-vision=False
 width, height = 257, 480
 player = Player(290, height)
 enemies = []
 game_mode = False
 score = 0
-speed = 5
+
 VideoCap = cv2.VideoCapture(0)
+lower_red = np.array([0, 50, 50])
+upper_red = np.array([10, 255, 255])
+speed = 5
 
 last_enemy_time = 0  # Variable to track the time when the last enemy was displayed
 enemy_delay = 0.6
+
 nbr_enemies = 30
+bg_color = [222, 222, 228]
 
 while True:
 
@@ -199,7 +268,8 @@ while True:
     frame=resize(frame)
     cv2.flip(frame,1, frame)
 
-    img = np.ones((height, width, 3), dtype=np.uint8) * 255  # White background
+    img = cv2.imread("bg.png") 
+    img = img[:height, :width, :]
 
     if game_mode:
         cv2.putText(img, "Score: {}".format(score), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
@@ -237,16 +307,16 @@ while True:
     else:
         img[:, :] = [0, 0, 255]  # Red background
 
-    # Concatenate images verticall
     
-    if vision:
-        mask = detect_inrange(frame)
-        centre=center(mask)
-    else:
-        centre=(int(width/2),int(height/2))
-        
+    # Concatenate images verticall
+    mask = detect_inrange(frame)
+    centre=center(mask)
     cv2.circle(frame, centre, 5, (0, 0, 255),-1)
+    player.x=centre[0]
+    #player.y=centre[1]
     concatenated_image = cv2.vconcat([img, frame])
+
+    
     cv2.imshow('Game Interface', concatenated_image)
 
     key = cv2.waitKey(10)
@@ -257,13 +327,9 @@ while True:
         speed = 10
         game_mode = True
         nbr_enemies = 30
-    elif key == ord('v'):
-        vision=True
-    if not vision:
-        if key == ord('a'):
-            player.move_left()
-        elif key == ord('d'):
-            player.move_right(width)
-    else:
-        player.x=centre[0]
+    elif key == ord('a'):
+        player.move_left()
+    elif key == ord('d'):
+        player.move_right(width)
+
 cv2.destroyAllWindows()
