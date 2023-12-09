@@ -109,10 +109,7 @@ def resize(img):
      for y in range(0,int(img.shape[0]/2.5)):
          for x in range(0,int(img.shape[1]/2.5)):
              img2[y,x,:]=img[int(y*2.5),int(x*2.5),:]
-     print(img2.shape)
      return img2
-
-        
 
 
 class Player:
@@ -144,7 +141,7 @@ class Enemy:
     def __init__(self, width, speed):
         self.w = 40
         self.h = 40
-        self.x = random.randint(20, width - 20)
+        self.x = random.randint(28, width - 28)
         self.y = 0 - self.h
         self.speed = speed
         self.enemy_character = cv2.imread("fox.png", cv2.IMREAD_UNCHANGED)
@@ -175,12 +172,12 @@ class Enemy:
 
 class BorderEnemy:
     def __init__(self, x, speed):
-        self.w = 20
-        self.h = 20
+        self.w = 28
+        self.h = 28
         self.x = x
         self.y = random.randint(-height, 0)
         self.speed = speed
-        self.border_enemy_character = cv2.imread("bush.png", cv2.IMREAD_UNCHANGED)
+        self.border_enemy_character = cv2.imread("tree.png", cv2.IMREAD_UNCHANGED)
 
     def collision(self, obj):
         x_overlap = max(0, min(obj.x + obj.w, self.x + self.w) - max(obj.x, self.x))
@@ -211,7 +208,6 @@ def resize(img):
      for y in range(0,int(img.shape[0]/2.5)):
          for x in range(0,int(img.shape[1]/2.5)):
              img2[y,x,:]=img[int(y*2.5),int(x*2.5),:]
-     print(img2.shape)
      return img2
 def Object_Color_Detection(image, surfacemin, surfacemax, lo, hi):
     points = []
@@ -292,11 +288,11 @@ while True:
         img[:, :] = [0, 0, 255]  # Red background
 
     
-    # # Concatenate images verticall
-    # mask = detect_inrange(frame)
-    # centre=center(mask)
-    # cv2.circle(frame, centre, 5, (0, 0, 255),-1)
-    # player.x=centre[0]
+    #Concatenate images verticall
+    mask = detect_inrange(frame)
+    centre=center(mask)
+    cv2.circle(frame, centre, 5, (0, 0, 255),-1)
+    player.x=centre[0]
     # #player.y=centre[1]
     concatenated_image = cv2.vconcat([img, frame])
 
@@ -311,11 +307,9 @@ while True:
         speed = 10
         game_mode = True
         nbr_enemies = 30
-    elif key == ord('v'):
-        vision=True
-    if not vision:
-        if key == ord('a'):
-            player.move_left()
-        elif key == ord('d'):
-            player.move_right(width)
+    elif key == ord('a'):
+        player.move_left()
+    elif key == ord('d'):
+        player.move_right(width)
+
 cv2.destroyAllWindows()
