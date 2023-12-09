@@ -3,14 +3,79 @@ import customtkinter as ctk
 import tkinter
 import tkinter as tk
 from PIL import Image, ImageTk
-import customtkinter as ctk
 import function_Interface
 import cv2
 import numpy as np
+import threading
+
+stop_detection_flag = False
+def update_canvas(frame, mask):
+    global frame_photo, mask_photo
+
+    # Convert frame and mask to ImageTk.PhotoImage objects
+    frame_pil = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+    mask_pil = Image.fromarray(mask)
+    
+    frame_photo = ImageTk.PhotoImage(frame_pil)
+    mask_photo = ImageTk.PhotoImage(mask_pil)
+
+    # Update the canvas with the new images
+    update_canvas_with_images(frame_photo, mask_photo)
+
+def object_Detection_Color():
+    global stop_detection_flag
+    stop_detection_flag = False
+
+    VideoCap = cv2.VideoCapture(0)
+
+    while True:
+        ret, frame = VideoCap.read()
+        frame = function_Interface.resize(frame)
+        cv2.flip(frame, 1, frame)
+        mask = function_Interface.detect_inrange(frame)
+        centre = function_Interface.center(mask)
+
+        if mask is not None:
+            cv2.circle(frame, centre, 5, (0, 0, 255), -1)
+            update_canvas(frame, mask)
+        
+        # Break out of the loop if the stop_detection_flag is True
+        if stop_detection_flag:
+            break
+
+        if cv2.waitKey(10) & 0xFF == ord('q'):
+            break
+
+    VideoCap.release()
+    cv2.destroyAllWindows()
 
 
+def display_image_on_canvas_from_image(image, frame):
+    # Mettre à jour le canevas avec l'image
+    image2 = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
+    update_canvas_with_images(image, image2)
 
 
+def update_canvas_with_images(frame_image, mask_image):
+    # Clear previous images on the canvas
+    canvas.delete("all")
+
+    # Display the images on the canvas
+    canvas.create_image(canvas_width / 2, screen_height / 2, anchor=tk.CENTER, image=frame_image)
+    canvas.create_image(0, 0, anchor=tk.NW, image=mask_image)
+
+    # Keep references to the PhotoImage objects to prevent garbage collection
+    canvas.frame_photo = frame_image
+    canvas.mask_photo = mask_image
+canvas_width = 740
+screen_height = 400
+
+
+def button_function_11():
+    # Exécuter object_Detection_Color dans un thread
+    threading.Thread(target=object_Detection_Color).start()
+
+#============================
 def display_image_on_canvas(image_path):
     # Open the image file
     image = Image.open(image_path)
@@ -222,7 +287,7 @@ def reset():
 root = ctk.CTk()
 root.title("Filters Test")
 
-screen_width = 800
+screen_width = 900
 screen_height = 600
 # Set the window dimensions to match the screen size
 root.geometry(f"{screen_width}x{screen_height}")
@@ -250,12 +315,34 @@ generate_button8.grid(row=10, column=0, columnspan=2, sticky="news", padx=10, pa
 generate_button9 = ctk.CTkButton(input_frame2, text="Sobel", command=lambda: button_function_9('xford.jpg'))
 generate_button9.grid(row=11, column=0, columnspan=2, sticky="news", padx=10, pady=10)
 
-generate_button10 = ctk.CTkButton(input_frame2, text="Jeu", command=close)
-generate_button10.grid(row=12, column=0, columnspan=2, sticky="news", padx=10, pady=10)
+
+
+
+# Function to set the stop_detection_flag
+def stop():
+    global stop_detection_flag
+    stop_detection_flag = True
+
+def clean():
+    canvas.delete("all")
+
+input_frame3 = ctk.CTkFrame(root)
+input_frame3.pack(side="left", expand=True, padx=20, pady=20)
+generate_button10 = ctk.CTkButton(input_frame3, text="Jeu", command=close)
+generate_button10.grid(row=13, column=0, columnspan=2, sticky="news", padx=10, pady=10)
+generate_button11 = ctk.CTkButton(input_frame3, text="ObjectDetection", command=button_function_11)
+generate_button11.grid(row=12, column=0, columnspan=2, sticky="news", padx=10, pady=10)
+generate_button12 = ctk.CTkButton(input_frame3, text="Stop", command=stop)
+generate_button12.grid(row=14, column=0, columnspan=2, sticky="news", padx=10, pady=10)
+generate_button13 = ctk.CTkButton(input_frame3, text="Clean", command=clean)
+generate_button13.grid(row=15, column=0, columnspan=2, sticky="news", padx=10, pady=10)
 
 
 canvas = tkinter.Canvas(root, width=740, height=screen_height)
 canvas.pack(side="right")
+
+
+
 
 
 root.mainloop()
