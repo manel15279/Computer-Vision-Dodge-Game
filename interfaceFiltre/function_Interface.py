@@ -1,9 +1,173 @@
 import cv2
 import numpy as np
-import Myfonctions
 import math
 
- 
+#==========================Myfunctions==================================
+import numpy as np
+
+
+def my_sum(seq):
+    total = 0
+
+    # Convertir le générateur en liste
+    seq_list = list(seq)
+
+    # Utiliser la longueur de la liste
+    length = len(seq_list)
+
+    index = 0
+    while index < length:
+        total += seq_list[index]
+        index += 1
+
+    return total
+
+
+def my_max(arg1, arg2):
+    seq = [arg1, arg2]
+    
+    if not seq:
+        # Gérer le cas où la séquence est vide
+        raise ValueError("my_max() arg is an empty sequence")
+
+    current_max = float('-inf')  # initialiser à l'infini négatif
+    index = 0
+    length = len(seq)
+
+    while index < length:
+        if seq[index] > current_max:
+            current_max = seq[index]
+        index += 1
+
+    return current_max
+
+
+def my_min(arg1, arg2):
+    seq = [arg1, arg2]
+
+    if not seq:
+        # Gérer le cas où la séquence est vide
+        raise ValueError("my_min() arg is an empty sequence")
+
+    current_min = float('inf')  # initialiser à l'infini positif
+    index = 0
+    length = len(seq)
+
+    while index < length:
+        if seq[index] < current_min:
+            current_min = seq[index]
+        index += 1
+
+    return current_min
+
+
+def my_abs(num):
+    if num < 0:
+        return -num
+    return num
+
+def my_max2(seq):
+    if not seq:
+        # Gérer le cas où la séquence est vide
+        raise ValueError("my_max() arg is an empty sequence")
+
+    current_max = float('-inf')  # initialiser à l'infini négatif
+    index = 0
+    length = len(seq)
+
+    while index < length:
+        if seq[index] > current_max:
+            current_max = seq[index]
+        index += 1
+
+    return current_max
+
+
+def my_min2(seq):
+    if not seq:
+        # Gérer le cas où la séquence est vide
+        raise ValueError("my_min() arg is an empty sequence")
+
+    current_min = float('inf')  # initialiser à l'infini positif
+    index = 0
+    length = len(seq)
+
+    while index < length:
+        if seq[index] < current_min:
+            current_min = seq[index]
+        index += 1
+
+    return current_min
+
+
+
+
+def dilation(image, kernel):
+    rows, cols = image.shape
+    result = np.zeros(image.shape, image.dtype)
+
+    k_rows = len(kernel)
+    k_cols = len(kernel[0])
+
+    i = 1
+    while i < rows - 1:
+        j = 1
+        while j < cols - 1:
+            # Initial value is set to 255 (white)
+            min_val = 0
+
+            m = 0
+            while m < k_rows:
+                n = 0
+                while n < k_cols:
+                    # Multiply corresponding pixel value with the kernel value
+                    pixel_value = image[i - 1 + m, j - 1 + n] * kernel[m][n]
+                    # Find the minimum value
+                    min_val = my_max(min_val, pixel_value)
+
+                    n += 1 
+
+                m += 1 
+
+            result[i, j] = min_val
+
+            j += 1 
+
+        i += 1  
+
+    return result
+
+
+
+def erode(mask,kernel):
+    y=0
+    ym,xm=kernel.shape
+    m=int((xm-1)/2)
+    mask2=255*np.ones(mask.shape,mask.dtype)
+    while y<mask.shape[0]:
+        x=0
+        while x<mask.shape[1]:
+            
+             if  not( y<m or y>(mask.shape[0]-1-m) or x<m or x>(mask.shape[1]-1-m)):
+                v=mask[y-m:y+m+1,x-m:x+m+1] 
+           
+                h=0
+                while(h<ym):
+                     w=0
+                     while(w<xm): 
+                        if(v[h,w]<kernel[h,w]):
+                             mask2[y,x]=0
+                             break
+                        w+=1
+                     if(mask2[y,x]==0): 
+                         break
+                     h+=1
+             x+=1
+        y+=1
+
+    return mask2
+
+#=======================================================================
 def mean_filter(img, kernel_size):
     rows, cols, channels = img.shape
     filtered_img = np.zeros(img.shape, img.dtype)
@@ -138,7 +302,7 @@ def gradient_filter(img, kernel_size):
                     m += 1
 
                 # Calculer le gradient en utilisant les valeurs collectées
-                gradient_value = Myfonctions.my_max2(values) - Myfonctions.my_min2(values)
+                gradient_value = my_max2(values) - my_min2(values)
 
                 # Mettre à jour la valeur du pixel avec le gradient calculé
                 gradient_img[i, j, k] = gradient_value
@@ -170,7 +334,7 @@ def generate_gaussian_kernel(size, sigma):
         i += 1
 
     # Normalize the kernel
-    kernel_sum = Myfonctions.my_sum(Myfonctions.my_sum(row) for row in kernel)
+    kernel_sum = my_sum(my_sum(row) for row in kernel)
     normalized_kernel = [[element / kernel_sum for element in row] for row in kernel]
 
     return normalized_kernel
@@ -236,12 +400,12 @@ def filtre_laplacien(image):
         j = 1
         while j < cols - 1:
             roi = [row[j-1:j+2] for row in image[i-1:i+2]]
-            resultat[i][j] = Myfonctions.my_sum(roi_val * kernel_val for roi_row, kernel_row in zip(roi, kernel) for roi_val, kernel_val in zip(roi_row, kernel_row))
+            resultat[i][j] = my_sum(roi_val * kernel_val for roi_row, kernel_row in zip(roi, kernel) for roi_val, kernel_val in zip(roi_row, kernel_row))
             j += 1
         i += 1
 
     # Convertir le résultat en valeurs absolues et en entier 8 bits
-    resultat_uint8 = [[Myfonctions.my_min(255, Myfonctions.my_max(0, int(Myfonctions.my_abs(val)))) for val in row] for row in resultat]
+    resultat_uint8 = [[my_min(255, my_max(0, int(my_abs(val)))) for val in row] for row in resultat]
 
     return np.array(resultat_uint8, dtype=np.uint8)
 
@@ -298,7 +462,7 @@ def dilation(image, kernel):
                     # Multiply corresponding pixel value with the kernel value
                     pixel_value = image[i - 1 + m, j - 1 + n] * kernel[m][n]
                     # Find the minimum value
-                    min_val = Myfonctions.my_max(min_val, pixel_value)
+                    min_val = my_max(min_val, pixel_value)
 
                     n += 1 
 
@@ -334,9 +498,9 @@ def closing(image, kernel):
 
 def opening(image, kernel):
     # Apply dilation first
-    dilated_image = Myfonctions.dilation(image, kernel)
+    dilated_image = dilation(image, kernel)
     # Apply erosion on the dilated image
-    opened_image = Myfonctions.erode(dilated_image, kernel)
+    opened_image = erode(dilated_image, kernel)
     return opened_image
 
 
@@ -385,3 +549,27 @@ def prewitt_filter(image, direction='horizontal'):
 
     return result
 
+
+
+def sobel(image, kernel):
+    # Taille de l'image et du noyau
+    img_height, img_width = image.shape
+    kernel_size = len(kernel)
+
+    # Demi-taille du noyau pour le padding
+    kernel_half = kernel_size // 2
+
+    # Image résultante de la convolution
+    result = np.zeros_like(image, dtype=np.float64)
+
+    # Appliquer la convolution
+    y = kernel_half
+    while y < img_height - kernel_half:
+        x = kernel_half
+        while x < img_width - kernel_half:
+            roi = image[y - kernel_half:y + kernel_half + 1, x - kernel_half:x + kernel_half + 1]
+            result[y, x] = np.sum(roi * kernel)
+            x += 1
+        y += 1
+
+    return result

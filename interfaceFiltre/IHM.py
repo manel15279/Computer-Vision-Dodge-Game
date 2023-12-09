@@ -1,14 +1,10 @@
 import customtkinter as ctk
 import tkinter
-import subprocess
 import tkinter as tk
-from tkinter import filedialog
 from PIL import Image, ImageTk
 import customtkinter as ctk
-import requests, io
 import function_Interface
 import cv2
-import time
 import numpy as np
 
 
@@ -104,7 +100,7 @@ def display_second_image7(image_path):
     new_image_path = image_path.replace('.jpg', '_filtree.jpg') 
     cv2.imwrite(new_image_path, image_filtree)
     display_image_on_canvas(new_image_path)
-    root.after(10, lambda: display_second_image7_1(image_path))
+    root.after(100, lambda: display_second_image7_1(image_path))
 
 def display_second_image7_1(image_path):
     kernel = np.array([[15, 15, 15],
@@ -133,19 +129,40 @@ def display_second_image8_1(image_path):
     cv2.imwrite(new_image_path, image_filtree)
     display_image_on_canvas(new_image_path)
 
+def display_second_image9(image_path):
+    sobel_x_kernel = [
+        [-1, 0, 1],
+        [-2, 0, 2],
+        [-1, 0, 1]
+    ]
+    sobel_y_kernel = [
+        [-1, -2, -1],
+        [0, 0, 0],
+        [1, 2, 1]
+    ]
+    seuil = 128
+    BN = function_Interface.seuillage_binaire(image_path, seuil)
+    sobel_x = function_Interface.sobel(BN, sobel_x_kernel)
+    sobel_y = function_Interface.sobel(BN, sobel_y_kernel)
+    gradient_magnitude = np.sqrt(sobel_x**2 + sobel_y**2)  # magnitude du gradient
+    new_image_path = image_path.replace('.jpg', '_filtree.jpg') 
+    cv2.imwrite(new_image_path, gradient_magnitude)
+    display_image_on_canvas(new_image_path)
+
+
 # Fonctions associées aux boutons
 def button_function_1(img):
     #import filtreMoyen
     display_image_on_canvas(img)
     # Wait for 3 seconds
-    root.after(3000, lambda: display_second_image(img))
+    root.after(1000, lambda: display_second_image(img))
     
 
 def button_function_2(img):
     #import filtreMedian
     display_image_on_canvas(img)
     # Wait for 3 seconds
-    root.after(3000, lambda: display_second_image2(img))
+    root.after(1000, lambda: display_second_image2(img))
 
 def button_function_3(img):
     #import filtreGradient
@@ -183,22 +200,16 @@ def button_function_8(img):
     # Wait for 3 seconds
     root.after(100, lambda: display_second_image8(img))
 
-def button_function_9():
-    #import filtre_seuillage  
-    pass 
+def button_function_9(img):
+    display_image_on_canvas(img)
+    # Wait for 3 seconds
+    root.after(100, lambda: display_second_image9(img)) 
 
 
 def close():
+    #subprocess.run(["python", "visual.py"])
     root.destroy()
 
-
-def open_proces():
-    root.destroy()
-    subprocess.run(["python", "proces.py"])
-
-def generate():
-    #user_prompt += "in style: " + dataset.get()
-    pass
 
 def reset():
     # Add reset functionality here
@@ -206,10 +217,6 @@ def reset():
 
 root = ctk.CTk()
 root.title("Filters Test")
-
-# Get the screen width and height
-#screen_width = root.winfo_screenwidth()
-#screen_height = root.winfo_screenheight()
 
 screen_width = 800
 screen_height = 600
@@ -225,24 +232,22 @@ generate_button1.grid(row=3, column=0, columnspan=2, sticky="news", padx=10, pad
 generate_button2 = ctk.CTkButton(input_frame2, text="Median", command=lambda: button_function_2('noisy.jpg'))
 generate_button2.grid(row=4, column=0, columnspan=2, sticky="news", padx=10, pady=10)
 generate_button3 = ctk.CTkButton(input_frame2, text="Gradient", command=lambda: button_function_3('univer.jpg'))
-generate_button3.grid(row=5, column=0, columnspan=2, sticky="news", padx=10, pady=10)
+generate_button3.grid(row=6, column=0, columnspan=2, sticky="news", padx=10, pady=10)
 generate_button4 = ctk.CTkButton(input_frame2, text="Gaussien", command=lambda: button_function_4('noisy.jpg'))
-generate_button4.grid(row=6, column=0, columnspan=2, sticky="news", padx=10, pady=10)
+generate_button4.grid(row=5, column=0, columnspan=2, sticky="news", padx=10, pady=10)
 generate_button5 = ctk.CTkButton(input_frame2, text="Laplacien", command=lambda: button_function_5('univer.jpg'))
 generate_button5.grid(row=7, column=0, columnspan=2, sticky="news", padx=10, pady=10)
 generate_button6 = ctk.CTkButton(input_frame2, text="Erode/Dilate", command=lambda: button_function_6('univer.jpg'))
 generate_button6.grid(row=8, column=0, columnspan=2, sticky="news", padx=10, pady=10)
 generate_button7 = ctk.CTkButton(input_frame2, text="Closing/Opening", command=lambda: button_function_7('univer.jpg'))
 generate_button7.grid(row=9, column=0, columnspan=2, sticky="news", padx=10, pady=10)
-generate_button8 = ctk.CTkButton(input_frame2, text="Prewitt", command=lambda: button_function_8('univer.jpg'))
+generate_button8 = ctk.CTkButton(input_frame2, text="Prewitt(H/V)", command=lambda: button_function_8('univer.jpg'))
 generate_button8.grid(row=10, column=0, columnspan=2, sticky="news", padx=10, pady=10)
-generate_button9 = ctk.CTkButton(input_frame2, text="Seuillage", command=button_function_9)
+generate_button9 = ctk.CTkButton(input_frame2, text="Sobel", command=lambda: button_function_9('univer.jpg'))
 generate_button9.grid(row=11, column=0, columnspan=2, sticky="news", padx=10, pady=10)
 
-#generate_button10 = ctk.CTkButton(input_frame2, text="Clean", command=button_function_9)
-#generate_button10.grid(row=12, column=0, columnspan=2, sticky="news", padx=10, pady=10)
-
-
+generate_button10 = ctk.CTkButton(input_frame2, text="Jeu", command=close)
+generate_button10.grid(row=12, column=0, columnspan=2, sticky="news", padx=10, pady=10)
 
 
 canvas = tkinter.Canvas(root, width=740, height=screen_height)
