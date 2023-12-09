@@ -82,6 +82,19 @@ def Object_Color_Detection(image, surfacemin, surfacemax, lo, hi):
             break
     return image, mask, points
 
+def resize(img):
+    target_width = 320
+    target_height = 480
+    img_resized = np.zeros((target_height, target_width, 3), img.dtype)
+
+    for y in range(target_height):
+        for x in range(target_width):
+            img_resized[y, x, :] = img[int(y * (img.shape[0] / target_height)),
+                                       int(x * (img.shape[1] / target_width)), :]
+
+    return img_resized
+
+
 # Initialize game parameters
 width, height = 640, 480
 player = Player(290, height)
@@ -90,6 +103,7 @@ game_mode = False
 score = 0
 
 VideoCap = cv2.VideoCapture(0)
+
 lower_red = np.array([0, 50, 50])
 upper_red = np.array([10, 255, 255])
 speed = 5
@@ -102,6 +116,7 @@ nbr_enemies = 30
 while True:
 
     ret, frame = VideoCap.read()
+    frame = resize(frame)
 
     video_capture_width = 320
     game_frame_width = 320
@@ -149,6 +164,7 @@ while True:
     # Replace each part with the corresponding content
     img_capture[:, :video_capture_width, :] = frame[:, :video_capture_width, :]
     img_capture[:, video_capture_width: video_capture_width + game_frame_width, :] = img[:, :game_frame_width, :]
+    
 
     image, mask, points = Object_Color_Detection(img_capture[:, :video_capture_width, :], 3000, 7000, lower_red, upper_red)
 
