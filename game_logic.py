@@ -254,7 +254,6 @@ while True:
     cv2.flip(frame,1, frame)
 
     img = cv2.imread("bg.png") 
-    img = img[:height, :width, :]
 
     if game_mode:
         cv2.putText(img, "Score: {}".format(score), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
