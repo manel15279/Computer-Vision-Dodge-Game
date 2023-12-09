@@ -12,7 +12,7 @@ import cv2
 import numpy as np
 import time
 
-lo = np.array([60,50,50])
+lo = np.array([53,50,50])
 hi = np.array([180,255,255])
 def erode(mask,kernel):
     ym,xm=kernel.shape
@@ -289,11 +289,12 @@ while True:
 
     
     #Concatenate images verticall
-    mask = detect_inrange(frame)
-    centre=center(mask)
-    cv2.circle(frame, centre, 5, (0, 0, 255),-1)
-    player.x=centre[0]
-    # #player.y=centre[1]
+    if vision:
+        mask = detect_inrange(frame)
+        centre=center(mask)
+        cv2.circle(frame, centre, 5, (0, 0, 255),-1)
+        player.x=centre[0]
+   
     concatenated_image = cv2.vconcat([img, frame])
 
     
@@ -307,9 +308,12 @@ while True:
         speed = 10
         game_mode = True
         nbr_enemies = 30
-    elif key == ord('a'):
-        player.move_left()
-    elif key == ord('d'):
-        player.move_right(width)
+    if key == ord('v'):
+        vision=True
+    if not vision:
+        if key == ord('a'):
+            player.move_left()
+        elif key == ord('d'):
+            player.move_right(width)
 
 cv2.destroyAllWindows()
