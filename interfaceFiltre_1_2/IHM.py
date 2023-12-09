@@ -79,7 +79,6 @@ def button_function_11():
 
 #=================================================Invisibility
 
-
 def invisibility():
     global stop_detection_flag
     stop_detection_flag = False
@@ -117,7 +116,43 @@ def invisibility():
 def button_function_12():
     # Exécuter object_Detection_Color dans un thread
     threading.Thread(target=invisibility).start()
-#============================
+
+#============================Fond Vert
+def fondVert():
+    global stop_detection_flag
+    stop_detection_flag = False
+    VideoCap = cv2.VideoCapture(0)
+    
+    image=cv2.imread("univer.jpg", cv2.IMREAD_COLOR)
+    image=function_Interface.resize(image)
+    while True:
+        ret, frame = VideoCap.read()
+        cv2.flip(frame,1, frame)
+        frame=function_Interface.resize(frame)
+        mask = function_Interface.detect_inrange(frame)
+    
+        function_Interface.dilateV(frame,image,mask,np.ones((5,5)))
+
+        if mask is not None:
+            #cv2.imshow('mask', mask)
+            #cv2.imshow('frame', frame)
+            update_canvas(frame, mask)
+
+        if stop_detection_flag:
+            break
+
+        if cv2.waitKey(10) & 0xFF == ord('q'):
+            break
+
+    VideoCap.release()
+    cv2.destroyAllWindows()
+
+
+def button_function_13():
+    # Exécuter object_Detection_Color dans un thread
+    threading.Thread(target=fondVert).start()
+
+
 def display_image_on_canvas(image_path):
     # Open the image file
     image = Image.open(image_path)
@@ -371,15 +406,17 @@ def clean():
 input_frame3 = ctk.CTkFrame(root)
 input_frame3.pack(side="left", expand=True, padx=20, pady=20)
 generate_button10 = ctk.CTkButton(input_frame3, text="Jeu", command=close)
-generate_button10.grid(row=14, column=0, columnspan=2, sticky="news", padx=10, pady=10)
+generate_button10.grid(row=15, column=0, columnspan=2, sticky="news", padx=10, pady=10)
 generate_button14 = ctk.CTkButton(input_frame3, text="Invisibility", command=button_function_12)
 generate_button14.grid(row=13, column=0, columnspan=2, sticky="news", padx=10, pady=10)
 generate_button11 = ctk.CTkButton(input_frame3, text="ObjectDetection", command=button_function_11)
 generate_button11.grid(row=12, column=0, columnspan=2, sticky="news", padx=10, pady=10)
+generate_button15 = ctk.CTkButton(input_frame3, text="FondVert", command=button_function_13)
+generate_button15.grid(row=14, column=0, columnspan=2, sticky="news", padx=10, pady=10)
 generate_button12 = ctk.CTkButton(input_frame3, text="Stop", command=stop)
-generate_button12.grid(row=15, column=0, columnspan=2, sticky="news", padx=10, pady=10)
+generate_button12.grid(row=16, column=0, columnspan=2, sticky="news", padx=10, pady=10)
 generate_button13 = ctk.CTkButton(input_frame3, text="Clean", command=clean)
-generate_button13.grid(row=16, column=0, columnspan=2, sticky="news", padx=10, pady=10)
+generate_button13.grid(row=17, column=0, columnspan=2, sticky="news", padx=10, pady=10)
 
 
 canvas = tkinter.Canvas(root, width=740, height=screen_height)
