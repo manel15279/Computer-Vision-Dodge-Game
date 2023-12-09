@@ -3,187 +3,33 @@ import numpy as np
 import random
 import time
 
-##optimisé
-#vert
-#boule
-#taille de frame en entrée
-
-import cv2
-import numpy as np
-import time
-
-lo = np.array([60,50,50])
-hi = np.array([180,255,255])
-def erode(mask,kernel):
-    ym,xm=kernel.shape
-    yi,xi=mask.shape
-    m=xm//2
-    mask2=mask.copy()
-    for y in range(yi):
-        for x in range(xi):
-            if mask[y,x]==255:
-                if  ( y<m or y>(yi-1-m) or x<m or x>(xi-1-m)):
-                    mask2[y,x]=0
-                else:
-                    v=mask[y-m:y+m+1,x-m:x+m+1] 
-                    for h in range(0,ym):
-                        for w in range(0,xm): 
-                            if(v[h,w]<kernel[h,w]):
-                                mask2[y,x]=0
-                                break
-                        if(mask2[y,x]==0): 
-                            break
-    return mask2
-
-# def erode(img,kernel):
-    ym,xm=kernel.shape
-    xi,yi=img.shape
-    m=xm//2
-    mask2=np.zeros(img.shape,img.dtype)
-    for y in range(xi):
-        for x in range(yi):   
-             if not(y<m or y>(xi-1-m) or x<m or x>(yi-1-m)):
-                v=img[y-m:y+m+1,x-m:x+m+1] 
-                b=False
-                for h in range(ym):
-                     for w in range(xm): 
-                        if(v[h,w]<kernel[h,w]):
-                             b=True
-                             break
-                     if(b): 
-                         break
-                if(not b): 
-                    mask2[y,x]=255
-    return mask2
-def inRange(img,lo,hi):
-    mask=np.zeros((img.shape[0],img.shape[1]))
-    for y in range(img.shape[0]):
-         for x in range(img.shape[1]):
-              if(img[y,x,0]<=hi[0] and img[y,x,0]>=lo[0] and img[y,x,2]<=hi[2] and img[y,x,2]>=lo[2] and img[y,x,1]<=hi[1] and img[y,x,1]>=lo[1] ):
-                    mask[y,x]=255
-    return mask
-def center(img):
-    b=True
-    c=True
-    premiery=0
-    derniery=img.shape[0]
-    premierx=0
-    dernierx=img.shape[1]
-    for y in range(img.shape[0]):
-        for x in range(img.shape[1]):
-            if(b and img[y,x]==255):
-                b=False
-                premiery=y
-            if( c and img[img.shape[0]-y-1,x]==255):
-                c=False
-                derniery=img.shape[0]-y-1
-            if(not b and not c):
-                break
-        if(not b and not c):
-            break    
-    b=True
-    c=True
-    for x in range(img.shape[1]):
-        for y in range(img.shape[0]):
-            if(img[y,x]==255 and b):
-                b=False
-                premierx=x
-            if(img[y,img.shape[1]-x-1]==255 and c):
-                c=False
-                dernierx=img.shape[1]-x-1
-            if(not b and not c):
-                break
-        if(not b and not c):
-            break
-
-    x=((dernierx-premierx)/2)+ premierx
-    y=((derniery-premiery)/2)+ premiery
-    return (int(x),int(y))
-def detect_inrange(image):
-    image = cv2.cvtColor(image,cv2.COLOR_BGR2HSV)
-    mask = inRange(image,lo,hi)
-    mask = erode(mask,kernel=np.ones((5,5)))
-    return mask
-def resize(img):
-     img2=np.zeros(((int(img.shape[0]/2.5))+1,(int(img.shape[1]//2.5))+1,3),img.dtype)
-     for y in range(0,int(img.shape[0]/2.5)):
-         for x in range(0,int(img.shape[1]/2.5)):
-             img2[y,x,:]=img[int(y*2.5),int(x*2.5),:]
-     print(img2.shape)
-     return img2
-
-        
-
-
-class Player:
-    def __init__(self, width, height):
-        self.w = 50
-        self.h = 50
-        self.x = width // 2
-        self.y = height - self.h
-
-    def move_left(self):
-        self.x = max(0, self.x - 20)  # Ensure the player stays within the left border
-
-    def move_right(self, width):
-        self.x = min(width - self.w, self.x + 20)  # Ensure the player stays within the right border
-
-
-    def display(self, img):
-        cv2.rectangle(img, (self.x, self.y), (self.x + self.w, self.y + self.h), (0, 0, 255), -1)
-
-class Enemy:
-    def __init__(self, width, speed):
-        self.w = 50
-        self.h = 50
-        self.x = random.randint(25, width - 25)
-        self.y = 0 - self.h
+class GameObject:
+    def __init__(self, speed, x, y):
+        self.pixel_character = np.ones((48, 48, 3), dtype=np.uint8) * 255
         self.speed = speed
-
-    def collision(self, obj):
-        x_overlap = max(0, min(obj.x + obj.w, self.x + self.w) - max(obj.x, self.x))
-        y_overlap = max(0, min(obj.y + obj.h, self.y + self.h) - max(obj.y, self.y))
-        overlap_area = x_overlap * y_overlap
-        return overlap_area > 0
-
-    def out_of_bounds(self, height):
-        if self.y > height:
-            return True
-        return False
-
-    def display(self, img):
-        self.y += self.speed
-        cv2.rectangle(img, (self.x, self.y), (self.x + self.w, self.y + self.h), (0, 0, 0), -1)
-
-class BorderEnemy:
-    def __init__(self, x, speed):
-        self.w = 25
-        self.h = 25
         self.x = x
-        self.y = random.randint(-height, 0)
-        self.speed = speed
+        self.y = y
 
-    def collision(self, obj):
-        x_overlap = max(0, min(obj.x + obj.w, self.x + self.w) - max(obj.x, self.x))
-        y_overlap = max(0, min(obj.y + obj.h, self.y + self.h) - max(obj.y, self.y))
-        overlap_area = x_overlap * y_overlap
-        return overlap_area > 0
+    def update_position(self):
+        self.x += self.speed
+        # Wrap around if the object goes beyond the edges
+        if self.x < 0:
+            self.x = 0  # Assuming the width of the frame is 640, adjust accordingly
+        elif self.x > 200:
+            self.x = 200
 
-    def out_of_bounds(self, height):
-        if self.y > height:
-            return True
-        return False
+    def draw(self, frame):
+        self.pixel_character[12:18, 12:18, :] = [0, 0, 0]
+        self.pixel_character[12:18, 30:36, :] = [0, 0, 0]
+        self.pixel_character[18:24, 12:36, :] = [12, 171, 233]
+        self.pixel_character[24:30, 12:36, :] = [20, 128, 203]
+        self.pixel_character[30:36, 18:30, :] = [34, 35, 188]
+        self.pixel_character[36:42, 18:30, :] = [48, 35, 169]
+        frame[
+            self.y : self.y + self.pixel_character.shape[0],
+            self.x : self.x + self.pixel_character.shape[1],
+        ] = self.pixel_character
 
-    def display(self, img):
-        self.y += self.speed
-        cv2.rectangle(img, (self.x, self.y), (self.x + self.w, self.y + self.h), (0, 0, 0), -1)
-def resize(img):
-     img2=np.zeros(((int(img.shape[0]/2.5))+1,(int(img.shape[1]//2.5))+1,3),img.dtype)
-     for y in range(0,int(img.shape[0]/2.5)):
-         for x in range(0,int(img.shape[1]/2.5)):
-             img2[y,x,:]=img[int(y*2.5),int(x*2.5),:]
-     print(img2.shape)
-     return img2
 def Object_Color_Detection(image, surfacemin, surfacemax, lo, hi):
     points = []
     image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
@@ -200,90 +46,121 @@ def Object_Color_Detection(image, surfacemin, surfacemax, lo, hi):
             break
     return image, mask, points
 
-# Initialize game parameters
-width, height = 257, 480
-player = Player(290, height)
-enemies = []
-game_mode = False
-score = 0
-
-VideoCap = cv2.VideoCapture(0)
 lower_red = np.array([0, 50, 50])
 upper_red = np.array([10, 255, 255])
-speed = 5
+speed = 400
+step = 30
 
-last_enemy_time = 0  # Variable to track the time when the last enemy was displayed
-enemy_delay = 0.6
+VideoCap = cv2.VideoCapture(0)
+game_object = GameObject(speed=0, x=125, y=200)
 
-nbr_enemies = 30
+def move(dest):
+    if dest == "Left":
+        game_object.speed = -5
+    elif dest == "Right":
+        game_object.speed = 5
+    elif dest == "Stop":
+        game_object.speed = 0
 
+def generate_obstacle(frame, obstacles):
+    obstacle = np.ones((15, 15, 3), dtype=np.uint8) * [0, 255, 0]  # Green color
+    obstacle_height = random.randint(0, frame.shape[0] - obstacle.shape[0])
+    
+    # Randomly choose left or right side
+    side = random.choice(['left', 'right'])
+    
+    obstacles.append((obstacle_height, side))  # Store obstacle position
+
+    for obstacle_height, side in obstacles:
+        if side == 'left':
+            frame[
+                obstacle_height : obstacle_height + obstacle.shape[0],
+                : obstacle.shape[1],
+            ] = obstacle
+        else:
+            frame[
+                obstacle_height : obstacle_height + obstacle.shape[0],
+                -obstacle.shape[1] :,
+            ] = obstacle # Store obstacle position
+
+def initialize_fixed_obstacles(frame, obstacles):
+    # Create fixed obstacles at the left and right borders
+    obstacle = np.ones((15, 15, 3), dtype=np.uint8) * [0, 255, 0]  # Green color
+    
+    for i in range(10):
+        # Left border
+        obstacles.append((0, 'left'))
+        frame[0 : obstacle.shape[0], : obstacle.shape[1]] = obstacle
+        
+        # Right border
+        obstacles.append((0, 'right'))
+        frame[0 : obstacle.shape[0], -obstacle.shape[1] :] = obstacle
+
+obstacles = []
+# Main loop for capturing and processing video frames
 while True:
-
+    # Read a frame from the video capture
     ret, frame = VideoCap.read()
-    frame=resize(frame)
-    cv2.flip(frame,1, frame)
 
-    img = np.ones((height, width, 3), dtype=np.uint8) * 255  # White background
+    # Create a white image with the same size as the captured frame
+    game_frame = np.ones_like(frame) * 0
+    white_frame = np.ones_like(frame) * 255
 
-    if game_mode:
-        cv2.putText(img, "Score: {}".format(score), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
-        cv2.putText(img, "Speed: {}".format(speed), (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
+    # Split the white frame into three parts
+    video_capture_width = 250
+    game_frame_width = 250
+    score_speed_width = frame.shape[1] - video_capture_width - game_frame_width  # Smaller width for scoring
 
-        if random.randint(0, nbr_enemies) == 0 and time.time() - last_enemy_time > enemy_delay:
-            border_enemy_left = BorderEnemy(0, speed)
-            border_enemy_right = BorderEnemy(width - border_enemy_left.w, speed)
-            enemies.append(Enemy(width - border_enemy_left.w - border_enemy_right.w, speed))
-            enemies.append(border_enemy_left)
-            enemies.append(border_enemy_right)
-            last_enemy_time = time.time()  # Update the last enemy display time
+    # Split the white frame into three parts
+    video_capture_part = white_frame[:, :video_capture_width, :]
+    game_frame_part = white_frame[:, video_capture_width: video_capture_width + game_frame_width, :]
+    score_speed_part = white_frame[:, -score_speed_width:, :]
 
-        # Update enemy positions first
-        for enemy in enemies:
-            enemy.display(img)
+    # Replace each part with the corresponding content
+    video_capture_part[:, :, :] = frame[:, :video_capture_width, :]
+    game_frame_part[:, :, :] = game_frame[:, :game_frame_width, :]
 
-        # Check for collisions or out-of-bounds after updating positions
-        for enemy in enemies:
-            if enemy.collision(player):
-                enemies = []
-                game_mode = False
-            elif enemy.out_of_bounds(height):
-                enemies.remove(enemy)
-                score += 1
-                if score % 10 == 0:
-                    speed += 1
-                    if nbr_enemies > 5:
-                        nbr_enemies -= 2
-                    for enemy in enemies:
-                        enemy.speed = speed
+    # Call the detect_inrange function to process the frame and detect objects
+    image, mask, points = Object_Color_Detection(game_frame_part, 3000, 7000, lower_red, upper_red)
 
-        player.display(img)
+    # Add text to the white frame
+    cv2.putText(white_frame, 'Score: 17.6', (10, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+    cv2.putText(white_frame, 'Vitesse: 60', (10, 70), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
 
-    else:
-        img[:, :] = [0, 0, 255]  # Red background
+    # If points were detected, draw a circle at the detected location on the frame
+    if len(points) > 0:
+        cv2.circle(frame, (points[0][0], points[0][1]), 10, (0, 0, 255), 2)
 
-    
-    # Concatenate images verticall
-    mask = detect_inrange(frame)
-    centre=center(mask)
-    cv2.circle(frame, centre, 5, (0, 0, 255),-1)
-    player.x=centre[0]
-    #player.y=centre[1]
-    concatenated_image = cv2.vconcat([img, frame])
+    game_object.update_position()
+    game_object.draw(game_frame_part)
 
-    
-    cv2.imshow('Game Interface', concatenated_image)
+    # Initialize fixed obstacles at the left and right borders
+    initialize_fixed_obstacles(game_frame_part, obstacles)
+
+    # Generate a new obstacle position each time the background moves
+    generate_obstacle(game_frame_part, obstacles)
+
+    # Scroll the background downward
+    game_frame_part = np.roll(game_frame_part, -1, axis=0)
+
+    # Combine the three parts to get the final white frame
+    white_frame = np.concatenate((video_capture_part, game_frame_part, score_speed_part), axis=1)
+
+    # Display the mask and the original frame with overlays
+    if mask is not None:
+        cv2.imshow('frame', white_frame)
 
     key = cv2.waitKey(10)
     if key == ord('q'):
         break
-    elif key == ord(' '):  # Space key to start/restart the game
-        score = 0
-        speed = 10
-        game_mode = True
-        nbr_enemies = 30
     elif key == ord('a'):
-        player.move_left()
+        move("Left")
     elif key == ord('d'):
-        player.move_right(width)
+        move("Right")
+    elif key == ord('s'):
+        move("Stop")
 
+
+# Release the video capture object and close all windows
+VideoCap.release()
 cv2.destroyAllWindows()
