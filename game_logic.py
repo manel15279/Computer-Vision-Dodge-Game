@@ -161,6 +161,7 @@ class Enemy:
         return False
 
     def display(self, img):
+        self.y += self.speed
         enemy_character_rgb = self.enemy_character[:, :, :3]
         y_start = max(0, self.y)
         y_end = min(img.shape[0], self.y + self.h)
@@ -171,11 +172,12 @@ class Enemy:
 
 class BorderEnemy:
     def __init__(self, x, speed):
-        self.w = 25
-        self.h = 25
+        self.w = 20
+        self.h = 20
         self.x = x
         self.y = random.randint(-height, 0)
         self.speed = speed
+        self.border_enemy_character = cv2.imread("bush.png", cv2.IMREAD_UNCHANGED)
 
     def collision(self, obj):
         x_overlap = max(0, min(obj.x + obj.w, self.x + self.w) - max(obj.x, self.x))
@@ -189,8 +191,18 @@ class BorderEnemy:
         return False
 
     def display(self, img):
-        self.y += self.speed
-        cv2.rectangle(img, (self.x, self.y), (self.x + self.w, self.y + self.h), (0, 0, 0), -1)
+        self.y += self.speed  
+
+        # Check if the updated position is still within the valid range of the image
+        if 0 <= self.y < img.shape[0]:
+            border_enemy_character_rgb = self.border_enemy_character[:, :, :3]
+            y_start = max(0, self.y)
+            y_end = min(img.shape[0], self.y + self.h)
+            x_start = max(0, self.x)
+            x_end = min(img.shape[1], self.x + self.w)
+
+            img[y_start:y_end, x_start:x_end, :] = border_enemy_character_rgb[:y_end - y_start, :x_end - x_start, :]
+        
 def resize(img):
      img2=np.zeros(((int(img.shape[0]/2.5))+1,(int(img.shape[1]//2.5))+1,3),img.dtype)
      for y in range(0,int(img.shape[0]/2.5)):
@@ -230,7 +242,6 @@ last_enemy_time = 0  # Variable to track the time when the last enemy was displa
 enemy_delay = 0.6
 
 nbr_enemies = 30
-bg_color = [222, 222, 228]
 
 while True:
 
