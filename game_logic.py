@@ -117,10 +117,12 @@ def resize(img):
 
 class Player:
     def __init__(self, width, height):
-        self.w = 48
-        self.h = 48
+        self.w = 40
+        self.h = 40
         self.x = width // 2
         self.y = height - self.h
+        self.player_character = cv2.imread("chicken.png", cv2.IMREAD_UNCHANGED)  
+
 
     def move_left(self):
         self.x = max(0, self.x - 20)  # Ensure the player stays within the left border
@@ -130,23 +132,22 @@ class Player:
 
 
     def display(self, img):
-        player_character = np.ones((self.h, self.w, 3), dtype=np.uint8) * 255
-        player_character[12:18, 12:18, :] = [0, 0, 0]
-        player_character[12:18, 30:36, :] = [0, 0, 0]
-        player_character[18:24, 12:36, :] = [12, 171, 233]
-        player_character[24:30, 12:36, :] = [20, 128, 203]
-        player_character[30:36, 18:30, :] = [34, 35, 188]
-        player_character[36:42, 18:30, :] = [48, 35, 169]
+        player_character_rgb = self.player_character[:, :, :3]
+        y_start = max(0, self.y)
+        y_end = min(img.shape[0], self.y + self.h)
+        x_start = max(0, self.x)
+        x_end = min(img.shape[1], self.x + self.w)
 
-        # Place the player character onto the main image
-        img[self.y:self.y + self.h, self.x:self.x + self.w, :] = player_character
+        img[y_start:y_end, x_start:x_end, :] = player_character_rgb[:y_end - y_start, :x_end - x_start, :]
+
 class Enemy:
     def __init__(self, width, speed):
-        self.w = 48
-        self.h = 48
-        self.x = random.randint(24, width - 24)
+        self.w = 40
+        self.h = 40
+        self.x = random.randint(20, width - 20)
         self.y = 0 - self.h
         self.speed = speed
+        self.enemy_character = cv2.imread("fox.png", cv2.IMREAD_UNCHANGED)
 
     def collision(self, obj):
         x_overlap = max(0, min(obj.x + obj.w, self.x + self.w) - max(obj.x, self.x))
@@ -160,44 +161,13 @@ class Enemy:
         return False
 
     def display(self, img):
-        self.y += self.speed
-        enemy_character = np.ones((self.h, self.w, 3), dtype=np.uint8) * 255
-        enemy_character[0:6, 0:18, :] = [222, 222, 228]
-        enemy_character[0:6, 30:48, :] = [222, 222, 228]
-        enemy_character[6:12, 0:18, :] = [194, 194, 200]
-        enemy_character[6:12, 30:48, :] = [194, 194, 200]
-        enemy_character[12:18, 0:48, :] = [194, 194, 200]
-        enemy_character[12:18, 12:18, :] = [181, 181, 188]
-        enemy_character[12:18, 30:36, :] = [181, 181, 188]
-        enemy_character[18:24, 12:18, :] = [0, 0, 0]
-        enemy_character[18:24, 30:36, :] = [0, 0, 0]
-        enemy_character[18:24, 18:30, :] = [116, 135, 162]
-        enemy_character[24:30, 0:6, :] = [116, 135, 162]
-        enemy_character[24:30, 42:48, :] = [116, 135, 162]
-        enemy_character[24:36, 6:12, :] = [137, 140, 154]
-        enemy_character[24:36, 36:42, :] = [137, 140, 154]
-        enemy_character[24:30, 12:36, :] = [214, 219, 234]
-        enemy_character[24:30, 0:6, :] = [82, 110, 140]
-        enemy_character[30:36, 42:48, :] = [82, 110, 140]
-        enemy_character[30:36, 12:36, :] = [214, 219, 234]
-        enemy_character[36:42, 0:6, :] = [116, 135, 162]
-        enemy_character[36:42, 42:48, :] = [116, 135, 162]
-        enemy_character[36:42, 6:12, :] = [214, 219, 234]
-        enemy_character[36:42, 36:42, :] = [214, 219, 234]
-        enemy_character[36:42, 12:36, :] = [69, 64, 65]
-        enemy_character[42:48, 0:18, :] = [222, 222, 228]
-        enemy_character[42:48, 30:48, :] = [222, 222, 228]
-        enemy_character[48:54, 18:30, :] = [69, 64, 65]
-
-        # Calculate the valid range to place the enemy character
+        enemy_character_rgb = self.enemy_character[:, :, :3]
         y_start = max(0, self.y)
         y_end = min(img.shape[0], self.y + self.h)
         x_start = max(0, self.x)
         x_end = min(img.shape[1], self.x + self.w)
 
-        # Place the enemy character onto the main image
-        img[y_start:y_end, x_start:x_end, :] = enemy_character[:y_end - y_start, :x_end - x_start, :]
-
+        img[y_start:y_end, x_start:x_end, :] = enemy_character_rgb[:y_end - y_start, :x_end - x_start, :]
 
 class BorderEnemy:
     def __init__(self, x, speed):
