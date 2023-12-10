@@ -3,59 +3,31 @@ import numpy as np
 import random
 import time
 
-##optimisé
-#vert
-#boule
-#taille de frame en entrée
-
-import cv2
-import numpy as np
-import time
 
 lo = np.array([43,50,50]) # HSV (teinte, saturation, valeur)
-hi = np.array([85,255,255])
+hi = np.array([85,255,255])#couleur choisis : vert
 
 def erode(mask,kernel):
     ym,xm=kernel.shape
     yi,xi=mask.shape
     m=xm//2
-    mask2=mask.copy()
+    mask2=mask.copy()#pr optimiser de base mask2 est une copy de mask
     for y in range(yi):
         for x in range(xi):
-            if mask[y,x]==255:
+            if mask[y,x]==255:# vu que c erode et que kernel 1 au milieu on change que si le pixel est blanc
                 if  ( y<m or y>(yi-1-m) or x<m or x>(xi-1-m)):
-                    mask2[y,x]=0
+                    mask2[y,x]=0# si il appartient au pixel de bords (considerant taille de kernel)on le rend noir
                 else:
                     v=mask[y-m:y+m+1,x-m:x+m+1] 
                     for h in range(0,ym):
                         for w in range(0,xm): 
                             if(v[h,w]<kernel[h,w]):
-                                mask2[y,x]=0
+                                mask2[y,x]=0 # erode fonctionne avec "et" donc il suffit d un 0 dans le voisinage la ou y a 1 dans le kernel pour qu il devienne noir
                                 break
-                        if(mask2[y,x]==0): 
+                        if(mask2[y,x]==0): #dans ce cas sortir des 2 boucles ameliorant ainsi la complexité
                             break
     return mask2
 
-# def erode(img,kernel):
-    ym,xm=kernel.shape
-    xi,yi=img.shape
-    m=xm//2
-    mask2=np.zeros(img.shape,img.dtype)
-    for y in range(xi):
-        for x in range(yi):   
-             if not(y<m or y>(xi-1-m) or x<m or x>(yi-1-m)):
-                v=img[y-m:y+m+1,x-m:x+m+1] 
-                b=False
-                for h in range(ym):
-                     for w in range(xm): 
-                        if(v[h,w]<kernel[h,w]):
-                             b=True
-                             break
-                     if(b): 
-                         break
-                if(not b): 
-                    mask2[y,x]=255
-    return mask2
 def inRange(img,lo,hi):
     mask=np.zeros((img.shape[0],img.shape[1]))
     for y in range(img.shape[0]):
@@ -66,16 +38,13 @@ def inRange(img,lo,hi):
 def center(img):
     b=True
     c=True
-    # premiery=0
-    # derniery=img.shape[0]
-    # premierx=0
-    dernierx=None#img.shape[1]
+    dernierx=None
     for y in range(img.shape[0]):
         for x in range(img.shape[1]):
-            if(b and img[y,x]==255):
+            if(b and img[y,x]==255):# on verifie si on a atteind permier pixel blanc de l axe y
                 b=False
                 premiery=y
-            if( c and img[img.shape[0]-y-1,x]==255):
+            if( c and img[img.shape[0]-y-1,x]==255):# on verifie si on a atteind dernier pixel blanc de l axe y
                 c=False
                 derniery=img.shape[0]-y-1
             if(not b and not c):
@@ -85,34 +54,34 @@ def center(img):
     b=True
     c=True
     for x in range(img.shape[1]):
-        for y in range(img.shape[0]):
-            if(img[y,x]==255 and b):
+        for y in range(img.shape[0]):#2 verification en paralelle pr ameliorer encore le temps d execution
+            if(img[y,x]==255 and b):# on verifie si on a atteind permier pixel blanc de l axe x
                 b=False
                 premierx=x
-            if(img[y,img.shape[1]-x-1]==255 and c):
+            if(img[y,img.shape[1]-x-1]==255 and c):# on verifie si on a atteind dernier pixel blanc de l axe x
                 c=False
                 dernierx=img.shape[1]-x-1
             if(not b and not c):
                 break
         if(not b and not c):
             break
-    if dernierx==None:
+    if dernierx==None:# le cas ou on a rien de vert dans le frame
         return None
     else:
-        x=((dernierx-premierx)/2)+ premierx
-        y=((derniery-premiery)/2)+ premiery
+        x=((dernierx-premierx)/2)+ premierx# milieu sur l axe x
+        y=((derniery-premiery)/2)+ premiery#milieu sur l axe y
         return (int(x),int(y))
 
 def detect_inrange(image):
-    image = cv2.cvtColor(image,cv2.COLOR_BGR2HSV)
-    mask = inRange(image,lo,hi)
-    mask = erode(mask,kernel=np.ones((5,5)))
+    image = cv2.cvtColor(image,cv2.COLOR_BGR2HSV) #bgr to hsv
+    mask = inRange(image,lo,hi)#binarisation selon intervale vert
+    mask = erode(mask,kernel=np.ones((5,5)))#erosionavec kernel 5*5
     return mask
 def resize(img):
      img2=np.zeros(((int(img.shape[0]/2.5))+1,(int(img.shape[1]//2.5))+1,3),img.dtype)
      for y in range(0,int(img.shape[0]/2.5)):
          for x in range(0,int(img.shape[1]/2.5)):
-             img2[y,x,:]=img[int(y*2.5),int(x*2.5),:]
+             img2[y,x,:]=img[int(y*2.5),int(x*2.5),:]#diminuer la taille de l image de x2.5
      return img2
 
 
@@ -205,14 +174,8 @@ class BorderEnemy:
             x_start = max(0, self.x)
             x_end = min(img.shape[1], self.x + self.w)
 
-            img[y_start:y_end, x_start:x_end, :] = border_enemy_character_rgb[:y_end - y_start, :x_end - x_start, :]
-        
-def resize(img):
-     img2=np.zeros(((int(img.shape[0]/2.5))+1,(int(img.shape[1]//2.5))+1,3),img.dtype)
-     for y in range(0,int(img.shape[0]/2.5)):
-         for x in range(0,int(img.shape[1]/2.5)):
-             img2[y,x,:]=img[int(y*2.5),int(x*2.5),:]
-     return img2
+            img[y_start:y_end, x_start:x_end, :] = border_enemy_character_rgb[:y_end - y_start, :x_end - x_start, :]   
+
 class KalmanFilter(object):
     def __init__(self, dt, point):
         self.dt=dt
@@ -257,7 +220,6 @@ class KalmanFilter(object):
         self.P=(I-(K*self.H))*self.P
 
         return self.E
-  
 
 # Initialize game parameters
 width, height = 257, 480
@@ -277,6 +239,7 @@ nbr_enemies = 30
 vision = False
 game_over = False
 vv=False
+
 while True:
 
     ret, frame = VideoCap.read()
@@ -328,15 +291,14 @@ while True:
 
 
     
-    #Concatenate images verticall
-    if vision:
+    if vision:#mode ou la poule bouge horizontalement 
         mask = detect_inrange(frame)
         centre=center(mask)
         cv2.circle(frame, centre, 5, (0, 0, 255),-1)
-        if centre is not None:
+        if centre is not None:#position poule mode 2
             player.x=centre[0]
         
-    if vv:
+    if vv:# mode ou la poule bouge verticalement et horizontalement avec prediction
         mask = detect_inrange(frame)
         centre=center(mask)
 
@@ -351,15 +313,15 @@ while True:
         if (centre is not None):
             KF.update(np.expand_dims(np.array([centre[0],centre[1]]), axis=-1))
         else:
-            centre=(int(etat[0]), int(etat[1]))
+            centre=(int(etat[0]), int(etat[1]))#centre predit
 
         cv2.circle(frame, centre, 5, (0, 0, 255),-1)
+        #position poule dans ce mode
         player.x=centre[0]
         player.y=height-40-int(((frame.shape[0]- centre[1])/frame.shape[0])*(height-40))
-        
-    concatenated_image = cv2.vconcat([img, frame])
 
-    
+     #Concatenate jeu et camera verticall   
+    concatenated_image = cv2.vconcat([img, frame])
     cv2.imshow('Game Interface', concatenated_image)
 
     key = cv2.waitKey(10)
@@ -375,16 +337,15 @@ while True:
         player.x=int(width/2)
         player.y=height-40
 
-    if key == ord('2'):
+    if key == ord('2'):#mode horizontale game
         vision=True
-    elif key == ord('3'):
+    elif key == ord('3'):#mode vertical+horizontal game
         vv=True
     else: 
-        if key == ord('q'):
+        if key == ord('q'):#deplacer gauche
             player.move_left()
-        elif key == ord('d'):
+        elif key == ord('d'):#deplacer droite
             player.move_right(width)
-  
 
 
 cv2.destroyAllWindows()

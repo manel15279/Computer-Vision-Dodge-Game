@@ -461,13 +461,51 @@ canvas.pack(expand=True, fill="both", padx=20, pady=20)
 th = 0
 type = 0
 stop_detection_flag = False
-
+def threasholdm(frame, th,typee):
+    mask=np.zeros(frame.shape,frame.dtype)
+    if typee==0:
+        for y in range(0,frame.shape[0]):
+            for x in range(0,frame.shape[1]):
+                if frame[y,x] > th:
+                    mask[y,x]= 255
+                else:
+                    mask[y,x]= 0
+    elif typee==1:
+        for y in range(frame.shape[0]):
+            for x in range(frame.shape[1]):
+                if frame[y,x] > th:
+                    mask[y,x]= 0
+                else:
+                    mask[y,x]= 255
+    elif typee==2:
+        for y in range(frame.shape[0]):
+            for x in range(frame.shape[1]):
+                if frame[y,x] > th:
+                    mask[y,x]= th
+                else:
+                    mask[y,x]= frame[y,x]
+    elif typee==3:
+        for y in range(frame.shape[0]):
+            for x in range(frame.shape[1]):
+                if frame[y,x] > th:
+                    mask[y,x]=frame[y,x]
+                else:
+                    mask[y,x]=0
+    elif typee==4:
+        for y in range(frame.shape[0]):
+            for x in range(frame.shape[1]):
+                if frame[y,x] > th:
+                    mask[y,x]=0
+                else:
+                    mask[y,x]=frame[y,x]
+    return mask
 # Fonction pour appliquer le seuillage et mettre à jour le canevas
+framee=cv2.imread("xford.jpg", cv2.IMREAD_GRAYSCALE)
 def afficher():
-    global img_tk, th, type, frame
+    global img_tk, th, type, framee
 
-    _, mask = cv2.threshold(frame, th, 255, type)
-    update_canvas(frame, mask)
+    mask = threasholdm(framee, th, type)
+    update_canvas(framee, mask)
 
 # Fonction de rappel pour le changement de seuil
 def changeTh(x):
@@ -480,8 +518,9 @@ def changeType(x):
     global type
     type = int(x)
     afficher()
-tk.Scale(input_frame2, from_=0, to=255, orient=tk.HORIZONTAL, label='Threshold', command=changeTh).grid(row=12, column=0, columnspan=2, sticky="news", padx=10, pady=10)
-tk.Scale(input_frame2, from_=0, to=4, orient=tk.HORIZONTAL, label='Type', command=changeType).grid(row=13, column=0, columnspan=2, sticky="news", padx=10, pady=10)
+
+tk.Scale(input_frame2, from_=0, to=255, orient=tk.HORIZONTAL, label='Threshold', command=changeTh,bg="#2a9d8f").grid(row=12, column=0, columnspan=2, sticky="news", padx=10, pady=10)
+tk.Scale(input_frame2, from_=0, to=4, orient=tk.HORIZONTAL, label='Type', command=changeType,bg="#2a9d8f").grid(row=13, column=0, columnspan=2, sticky="news", padx=10, pady=10)
 
 
 root.mainloop()
