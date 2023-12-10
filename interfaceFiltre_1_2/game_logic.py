@@ -122,7 +122,7 @@ class Player:
         self.h = 40
         self.x = width // 2
         self.y = height - self.h
-        self.player_character = cv2.imread("chicken.png", cv2.IMREAD_UNCHANGED)  
+        self.player_character = cv2.imread("interfaceFiltre_1_2\\chicken.png", cv2.IMREAD_UNCHANGED)  
 
 
     def move_left(self):
@@ -148,7 +148,7 @@ class Enemy:
         self.x = random.randint(28, width - 28)
         self.y = 0 - self.h
         self.speed = speed
-        self.enemy_character = cv2.imread("fox.png", cv2.IMREAD_UNCHANGED)
+        self.enemy_character = cv2.imread("interfaceFiltre_1_2\\fox.png", cv2.IMREAD_UNCHANGED)
 
     def collision(self, obj):
         x_overlap = max(0, min(obj.x + obj.w, self.x + self.w) - max(obj.x, self.x))
@@ -181,7 +181,7 @@ class BorderEnemy:
         self.x = x
         self.y = random.randint(-height, 0)
         self.speed = speed
-        self.border_enemy_character = cv2.imread("tree.png", cv2.IMREAD_UNCHANGED)
+        self.border_enemy_character = cv2.imread("interfaceFiltre_1_2\\tree.png", cv2.IMREAD_UNCHANGED)
 
     def collision(self, obj):
         x_overlap = max(0, min(obj.x + obj.w, self.x + self.w) - max(obj.x, self.x))
@@ -264,7 +264,7 @@ width, height = 257, 480
 player = Player(290, height)
 enemies = []
 game_mode = False
-score = 0
+score = 0  
 
 VideoCap = cv2.VideoCapture(0)
 KF=KalmanFilter(0.1, [int(width/2),int(193)])
@@ -283,7 +283,7 @@ while True:
     frame=resize(frame)
     cv2.flip(frame,1, frame)
 
-    img = cv2.imread("bg.png") 
+    img = cv2.imread("interfaceFiltre_1_2\\bg.png") 
 
     if game_mode:
         cv2.putText(img, "Score: {}".format(score), (10, 20), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0, 2, 29), 1, cv2.LINE_AA)
@@ -322,9 +322,11 @@ while True:
         
         if game_over:  
             cv2.putText(img, "GAME OVER !", (80, 240), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0, 2, 29), 1, cv2.LINE_AA)
+            cv2.putText(img, "Score: {}".format(score), (95, 270), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0, 2, 29), 1, cv2.LINE_AA)
+
         else:
             cv2.putText(img, "BRICK RACING GAME", (16, 180), cv2.FONT_HERSHEY_DUPLEX, 0.7, (0, 2, 29), 1, cv2.LINE_AA)
-            cv2.putText(img, "Press <SPACE> to start", (50, 300), cv2.FONT_HERSHEY_DUPLEX, 0.4, (0, 2, 29), 1, cv2.LINE_AA)
+            cv2.putText(img, "Press <SPACE> to start", (50, 280), cv2.FONT_HERSHEY_DUPLEX, 0.4, (0, 2, 29), 1, cv2.LINE_AA)
 
 
     
