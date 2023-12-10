@@ -4,7 +4,7 @@ import customtkinter as ctk
 import tkinter
 import tkinter as tk
 from PIL import Image, ImageTk
-import function_Interface
+import function_Interface as FI
 import cv2
 import numpy as np
 import threading
@@ -32,10 +32,10 @@ def object_Detection_Color():
 
     while True:
         ret, frame = VideoCap.read()
-        frame = function_Interface.resize(frame)
+        frame = FI.resize(frame)
         cv2.flip(frame, 1, frame)
-        mask = function_Interface.detect_inrange(frame)
-        centre = function_Interface.center(mask)
+        mask = FI.detect_inrange(frame)
+        centre = FI.center(mask)
 
         if mask is not None:
             cv2.circle(frame, centre, 5, (0, 0, 255), -1)
@@ -51,12 +51,10 @@ def object_Detection_Color():
     VideoCap.release()
     cv2.destroyAllWindows()
 
-
 def display_image_on_canvas_from_image(image, frame):
     # Mettre à jour le canevas avec l'image
     image2 = Image.fromarray(cv2.cvtColor(frame, cv2.COLOR_BGR2RGB))
     update_canvas_with_images(image, image2)
-
 
 def update_canvas_with_images(frame_image, mask_image):
     # Clear previous images on the canvas
@@ -72,13 +70,12 @@ def update_canvas_with_images(frame_image, mask_image):
 canvas_width = 740
 screen_height = 400
 
-
 def button_function_11():
     # Exécuter object_Detection_Color dans un thread
     threading.Thread(target=object_Detection_Color).start()
 
-#=================================================Invisibility
 
+#=======================================Invisibility======================
 def invisibility():
     global stop_detection_flag
     stop_detection_flag = False
@@ -87,7 +84,7 @@ def invisibility():
     time.sleep(2)
     ret, background = VideoCap.read()
     cv2.flip(background,1, background)
-    background=function_Interface.resize(background)
+    background=FI.resize(background)
     VideoCap.release()
     VideoCap = cv2.VideoCapture(0)
     while True:
@@ -96,9 +93,9 @@ def invisibility():
             break
         ret, frame = VideoCap.read()
         cv2.flip(frame,1, frame)
-        frame=function_Interface.resize(frame)
-        mask = function_Interface.detect_inrange(frame)
-        function_Interface.dilateV(frame,background,mask,np.ones((5,5)))
+        frame=FI.resize(frame)
+        mask = FI.detect_inrange(frame)
+        FI.dilateV(frame,background,mask,np.ones((5,5)))
     
         if mask is not None:
             #cv2.imshow('mask', mask)
@@ -117,21 +114,21 @@ def button_function_12():
     # Exécuter object_Detection_Color dans un thread
     threading.Thread(target=invisibility).start()
 
-#============================Fond Vert
+#============================Fond Vert============================
 def fondVert():
     global stop_detection_flag
     stop_detection_flag = False
     VideoCap = cv2.VideoCapture(0)
     
     image=cv2.imread("univer.jpg", cv2.IMREAD_COLOR)
-    image=function_Interface.resize(image)
+    image=FI.resize(image)
     while True:
         ret, frame = VideoCap.read()
         cv2.flip(frame,1, frame)
-        frame=function_Interface.resize(frame)
-        mask = function_Interface.detect_inrange(frame)
+        frame=FI.resize(frame)
+        mask = FI.detect_inrange(frame)
     
-        function_Interface.dilateV(frame,image,mask,np.ones((5,5)))
+        FI.dilateV(frame,image,mask,np.ones((5,5)))
 
         if mask is not None:
             #cv2.imshow('mask', mask)
@@ -147,11 +144,9 @@ def fondVert():
     VideoCap.release()
     cv2.destroyAllWindows()
 
-
 def button_function_13():
     # Exécuter object_Detection_Color dans un thread
     threading.Thread(target=fondVert).start()
-
 
 def display_image_on_canvas(image_path):
     # Open the image file
@@ -169,33 +164,31 @@ def display_image_on_canvas(image_path):
     # Keep a reference to the PhotoImage to prevent it from being garbage collected
     canvas.image = photo
 
-
 def display_second_image(image_path):
     image = cv2.imread(image_path)
-    image_filtree = function_Interface.mean_filter(image, 5)
+    image_filtree = FI.mean_filter(image, 5)
     new_image_path = image_path.replace('.jpg', '_filtree.jpg') 
     cv2.imwrite(new_image_path, image_filtree)
     display_image_on_canvas(new_image_path)
 
 def display_second_image2(image_path):
     image = cv2.imread(image_path)
-    image_filtree = function_Interface.median_filter(image, 5)
+    image_filtree = FI.median_filter(image, 5)
     new_image_path = image_path.replace('.jpg', '_filtree.jpg') 
     cv2.imwrite(new_image_path, image_filtree)
     display_image_on_canvas(new_image_path)
 
 def display_second_image3(image_path):
     image = cv2.imread(image_path)
-    image_filtree = function_Interface.gradient_filter(image, 3)
+    image_filtree = FI.gradient_filter(image, 3)
     new_image_path = image_path.replace('.jpg', '_filtree.jpg') 
     cv2.imwrite(new_image_path, image_filtree)
     display_image_on_canvas(new_image_path)
 
-
 def display_second_image4(image_path):
     image = cv2.imread(image_path)
-    gaussian_kernel_2d = function_Interface.generate_gaussian_kernel(5, 1.0)
-    image_filtree = function_Interface.convolve(image, gaussian_kernel_2d)
+    gaussian_kernel_2d = FI.generate_gaussian_kernel(5, 1.0)
+    image_filtree = FI.convolve(image, gaussian_kernel_2d)
     new_image_path = image_path.replace('.jpg', '_filtree.jpg') 
     cv2.imwrite(new_image_path, image_filtree)
     display_image_on_canvas(new_image_path)
@@ -203,24 +196,23 @@ def display_second_image4(image_path):
 def display_second_image5(image_path):
     #image = cv2.imread(image_path)
     image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE).tolist()
-    image_filtree = function_Interface.filtre_laplacien(image)
+    image_filtree = FI.filtre_laplacien(image)
     new_image_path = image_path.replace('.jpg', '_filtree.jpg') 
     cv2.imwrite(new_image_path, image_filtree)
     display_image_on_canvas(new_image_path)
 
 def display_second_image6(image_path):
     seuil = 128
-    BN = function_Interface.seuillage_binaire(image_path, seuil)
+    BN = FI.seuillage_binaire(image_path, seuil)
     kernel = np.array([ [1, 0, 1],
                         [0, 1, 0],
                         [1, 0, 1]], dtype=np.uint8)
     #image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
-    image_filtree = function_Interface.erode(BN, kernel)
+    image_filtree = FI.erode(BN, kernel)
     new_image_path = image_path.replace('.jpg', '_filtree.jpg') 
     cv2.imwrite(new_image_path, image_filtree)
     display_image_on_canvas(new_image_path)
     root.after(10, lambda: display_second_image6_1(image_path))
-
 
 def display_second_image6_1(image_path):
     kernel = np.array([
@@ -229,8 +221,8 @@ def display_second_image6_1(image_path):
         [1, 0, 1]
     ])
     seuil = 128
-    BN = function_Interface.seuillage_binaire(image_path, seuil)
-    image_filtree = function_Interface.dilation(BN, kernel)
+    BN = FI.seuillage_binaire(image_path, seuil)
+    image_filtree = FI.dilation(BN, kernel)
     new_image_path = image_path.replace('.jpg', '_filtree.jpg') 
     cv2.imwrite(new_image_path, image_filtree)
     display_image_on_canvas(new_image_path)
@@ -240,8 +232,8 @@ def display_second_image7(image_path):
                            [0, 1, 0],
                            [1, 0, 1]], dtype=np.uint8)
     seuil = 128
-    BN = function_Interface.seuillage_binaire(image_path, seuil)
-    image_filtree = function_Interface.closing(BN, closing_kernel)
+    BN = FI.seuillage_binaire(image_path, seuil)
+    image_filtree = FI.closing(BN, closing_kernel)
     new_image_path = image_path.replace('.jpg', '_filtree.jpg') 
     cv2.imwrite(new_image_path, image_filtree)
     display_image_on_canvas(new_image_path)
@@ -252,24 +244,23 @@ def display_second_image7_1(image_path):
                            [0, 1, 0],
                            [1, 0, 1]], dtype=np.uint8)
     seuil = 128
-    BN = function_Interface.seuillage_binaire(image_path, seuil)
-    image_filtree = function_Interface.opening(BN, kernel)
+    BN = FI.seuillage_binaire(image_path, seuil)
+    image_filtree = FI.opening(BN, kernel)
     new_image_path = image_path.replace('.jpg', '_filtree.jpg') 
     cv2.imwrite(new_image_path, image_filtree)
     display_image_on_canvas(new_image_path)
 
 def display_second_image8(image_path):
     image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
-    image_filtree = function_Interface.prewitt_filter(image, direction='horizontal')
+    image_filtree = FI.prewitt_filter(image, direction='horizontal')
     new_image_path = image_path.replace('.jpg', '_filtree.jpg') 
     cv2.imwrite(new_image_path, image_filtree)
     display_image_on_canvas(new_image_path)
     root.after(20, lambda: display_second_image8_1(image_path))
 
-
 def display_second_image8_1(image_path):
     image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
-    image_filtree = function_Interface.prewitt_filter(image, direction='vertical')
+    image_filtree = FI.prewitt_filter(image, direction='vertical')
     new_image_path = image_path.replace('.jpg', '_filtree.jpg') 
     cv2.imwrite(new_image_path, image_filtree)
     display_image_on_canvas(new_image_path)
@@ -286,14 +277,13 @@ def display_second_image9(image_path):
         [1, 2, 1]
     ]
     seuil = 128
-    BN = function_Interface.seuillage_binaire(image_path, seuil)
-    sobel_x = function_Interface.sobel(BN, sobel_x_kernel)
-    sobel_y = function_Interface.sobel(BN, sobel_y_kernel)
+    BN = FI.seuillage_binaire(image_path, seuil)
+    sobel_x = FI.sobel(BN, sobel_x_kernel)
+    sobel_y = FI.sobel(BN, sobel_y_kernel)
     gradient_magnitude = np.sqrt(sobel_x**2 + sobel_y**2)  # magnitude du gradient
     new_image_path = image_path.replace('.jpg', '_filtree.jpg') 
     cv2.imwrite(new_image_path, gradient_magnitude)
     display_image_on_canvas(new_image_path)
-
 
 # Fonctions associées aux boutons
 def button_function_1(img):
@@ -301,7 +291,6 @@ def button_function_1(img):
     display_image_on_canvas(img)
     # Wait for 3 seconds
     root.after(1000, lambda: display_second_image(img))
-    
 
 def button_function_2(img):
     #import filtreMedian
@@ -350,12 +339,9 @@ def button_function_9(img):
     # Wait for 3 seconds
     root.after(10, lambda: display_second_image9(img)) 
 
- 
 def close():
     root.destroy()
     subprocess.run(["python", "game_logic.py"])
-
-
 
 def reset():
     # Add reset functionality here
@@ -391,9 +377,6 @@ generate_button8.grid(row=10, column=0, columnspan=2, sticky="news", padx=10, pa
 generate_button9 = ctk.CTkButton(input_frame2, text="Sobel", command=lambda: button_function_9('jardin.jpg'),fg_color="#287271",hover_color="#2a9d8f")
 generate_button9.grid(row=11, column=0, columnspan=2, sticky="news", padx=10, pady=10)
 
-
-
-
 # Function to set the stop_detection_flag
 def stop():
     global stop_detection_flag
@@ -417,10 +400,8 @@ generate_button12.grid(row=16, column=0, columnspan=2, sticky="news", padx=10, p
 generate_button13 = ctk.CTkButton(input_frame3, text="Clean", command=clean,fg_color="#287271",hover_color="#2a9d8f")
 generate_button13.grid(row=17, column=0, columnspan=2, sticky="news", padx=10, pady=10)
 
-
 canvas = tkinter.Canvas(root, width=740, height=screen_height)
 canvas.pack(expand=True, fill="both", padx=20, pady=20)
-
 
 
 root.mainloop()
