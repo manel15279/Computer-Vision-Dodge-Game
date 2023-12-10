@@ -12,8 +12,9 @@ import cv2
 import numpy as np
 import time
 
-lo = np.array([53,50,50])
-hi = np.array([180,255,255])
+lo = np.array([43,50,50]) # HSV (teinte, saturation, valeur)
+hi = np.array([85,255,255])
+
 def erode(mask,kernel):
     ym,xm=kernel.shape
     yi,xi=mask.shape
@@ -65,10 +66,10 @@ def inRange(img,lo,hi):
 def center(img):
     b=True
     c=True
-    premiery=0
-    derniery=img.shape[0]
-    premierx=0
-    dernierx=img.shape[1]
+    # premiery=0
+    # derniery=img.shape[0]
+    # premierx=0
+    dernierx=None#img.shape[1]
     for y in range(img.shape[0]):
         for x in range(img.shape[1]):
             if(b and img[y,x]==255):
@@ -95,10 +96,13 @@ def center(img):
                 break
         if(not b and not c):
             break
+    if dernierx==None:
+        return None
+    else:
+        x=((dernierx-premierx)/2)+ premierx
+        y=((derniery-premiery)/2)+ premiery
+        return (int(x),int(y))
 
-    x=((dernierx-premierx)/2)+ premierx
-    y=((derniery-premiery)/2)+ premiery
-    return (int(x),int(y))
 def detect_inrange(image):
     image = cv2.cvtColor(image,cv2.COLOR_BGR2HSV)
     mask = inRange(image,lo,hi)
@@ -209,21 +213,51 @@ def resize(img):
          for x in range(0,int(img.shape[1]/2.5)):
              img2[y,x,:]=img[int(y*2.5),int(x*2.5),:]
      return img2
-def Object_Color_Detection(image, surfacemin, surfacemax, lo, hi):
-    points = []
-    image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-    mask = cv2.inRange(image, lo, hi)
-    mask = cv2.erode(mask, None, iterations=2)
-    mask = cv2.dilate(mask, None, iterations=2)
-    elements = cv2.findContours(mask, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)[-2]
-    elements = sorted(elements, key=lambda x: cv2.contourArea(x), reverse=True)
-    for element in elements:
-        if surfacemin < cv2.contourArea(element) < surfacemax:
-            ((x, y), rayon) = cv2.minEnclosingCircle(element)
-            points.append(np.array([int(x), int(y), int(rayon)]))
-        else:
-            break
-    return image, mask, points
+class KalmanFilter(object):
+    def __init__(self, dt, point):
+        self.dt=dt
+
+        # Vecteur d'etat initial
+        self.E=np.matrix([[point[0]], [point[1]], [0], [0]])
+
+        # Matrice de transition
+        self.A=np.matrix([[1, 0, self.dt, 0],
+                          [0, 1, 0, self.dt],
+                          [0, 0, 1, 0],
+                          [0, 0, 0, 1]])
+
+        # Matrice d'observation, on observe que x et y
+        self.H=np.matrix([[1, 0, 0, 0],
+                          [0, 1, 0, 0]])
+
+        self.Q=np.matrix([[1, 0, 0, 0],
+                          [0, 1, 0, 0],
+                          [0, 0, 1, 0],
+                          [0, 0, 0, 1]])
+
+        self.R=np.matrix([[1, 0],
+                          [0, 1]])
+
+        self.P=np.eye(self.A.shape[1])
+
+    def predict(self):
+        self.E=np.dot(self.A, self.E)
+        # Calcul de la covariance de l'erreur
+        self.P=np.dot(np.dot(self.A, self.P), self.A.T)+self.Q
+        return self.E
+
+    def update(self, z):
+        # Calcul du gain de Kalman
+        S=np.dot(self.H, np.dot(self.P, self.H.T))+self.R
+        K=np.dot(np.dot(self.P, self.H.T), np.linalg.inv(S))
+
+        # Correction / innovation
+        self.E=np.round(self.E+np.dot(K, (z-np.dot(self.H, self.E))))
+        I=np.eye(self.H.shape[1])
+        self.P=(I-(K*self.H))*self.P
+
+        return self.E
+  
 
 # Initialize game parameters
 width, height = 257, 480
@@ -233,8 +267,7 @@ game_mode = False
 score = 0
 
 VideoCap = cv2.VideoCapture(0)
-lower_red = np.array([0, 50, 50])
-upper_red = np.array([10, 255, 255])
+KF=KalmanFilter(0.1, [int(width/2),int(193)])
 speed = 5
 
 last_enemy_time = 0  # Variable to track the time when the last enemy was displayed
@@ -242,32 +275,19 @@ enemy_delay = 0.8
 
 nbr_enemies = 30
 vision = False
-<<<<<<< HEAD:game_logic.py
 game_over = False
-=======
 vv=False
->>>>>>> 060de7824eb148cc5c33531a43298f6198d122a0:interfaceFiltre_1_2/game_logic.py
 while True:
 
     ret, frame = VideoCap.read()
     frame=resize(frame)
     cv2.flip(frame,1, frame)
 
-<<<<<<< HEAD:game_logic.py
     img = cv2.imread("bg.png") 
 
     if game_mode:
         cv2.putText(img, "Score: {}".format(score), (10, 20), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0, 2, 29), 1, cv2.LINE_AA)
         cv2.putText(img, "Speed: {}".format(speed), (10, 40), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0, 2, 29), 1, cv2.LINE_AA)
-=======
-    img =np.zeros((480,257,3),dtype=np.uint8)
-    img[:,:,1]=80
-    
-    
-    if game_mode:#amelioration+interface beauty
-        cv2.putText(img, "Score: {}".format(score), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
-        cv2.putText(img, "Speed: {}".format(speed), (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
->>>>>>> 060de7824eb148cc5c33531a43298f6198d122a0:interfaceFiltre_1_2/game_logic.py
 
         if random.randint(0, nbr_enemies) == 0 and time.time() - last_enemy_time > enemy_delay:
             border_enemy_left = BorderEnemy(0, speed)
@@ -298,9 +318,8 @@ while True:
                         enemy.speed = speed
 
         player.display(img)
-
     else:
-        img[:, :] = [163, 241, 255]
+        
         if game_over:  
             cv2.putText(img, "GAME OVER !", (80, 240), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0, 2, 29), 1, cv2.LINE_AA)
         else:
@@ -314,44 +333,58 @@ while True:
         mask = detect_inrange(frame)
         centre=center(mask)
         cv2.circle(frame, centre, 5, (0, 0, 255),-1)
-        player.x=centre[0]
-<<<<<<< HEAD:game_logic.py
-   
-=======
+        if centre is not None:
+            player.x=centre[0]
         
     if vv:
-        player.y=height-40-(frame.shape[0]- centre[1])
->>>>>>> 060de7824eb148cc5c33531a43298f6198d122a0:interfaceFiltre_1_2/game_logic.py
+        mask = detect_inrange(frame)
+        centre=center(mask)
+
+        etat=KF.predict().astype(np.int32)
+        cv2.arrowedLine(frame,
+                        (int(etat[0]), int(etat[1])), (int(etat[0]+etat[2]), 
+                        int(etat[1]+etat[3])),
+                        color=(0, 255, 0),
+                        thickness=3,
+                        tipLength=0.2)
+        
+        if (centre is not None):
+            KF.update(np.expand_dims(np.array([centre[0],centre[1]]), axis=-1))
+        else:
+            centre=(int(etat[0]), int(etat[1]))
+
+        cv2.circle(frame, centre, 5, (0, 0, 255),-1)
+        player.x=centre[0]
+        player.y=height-40-int(((frame.shape[0]- centre[1])/frame.shape[0])*(height-40))
+        
     concatenated_image = cv2.vconcat([img, frame])
 
     
     cv2.imshow('Game Interface', concatenated_image)
 
     key = cv2.waitKey(10)
-    if key == ord('q'):
+    if key == ord('e'):
         break
     elif key == ord(' '):  # Space key to start/restart the game
         score = 0
         speed = 10
         game_mode = True
         nbr_enemies = 30
-    if key == ord('v'):
+        vision=False
+        vv=False
+        player.x=int(width/2)
+        player.y=height-40
+
+    if key == ord('2'):
         vision=True
-<<<<<<< HEAD:game_logic.py
-=======
-    if key == ord('f'):
-        vision=True
+    elif key == ord('3'):
         vv=True
->>>>>>> 060de7824eb148cc5c33531a43298f6198d122a0:interfaceFiltre_1_2/game_logic.py
-    if not vision:
-        if key == ord('a'):
+    else: 
+        if key == ord('q'):
             player.move_left()
         elif key == ord('d'):
             player.move_right(width)
-<<<<<<< HEAD:game_logic.py
-=======
   
 
->>>>>>> 060de7824eb148cc5c33531a43298f6198d122a0:interfaceFiltre_1_2/game_logic.py
 
 cv2.destroyAllWindows()
