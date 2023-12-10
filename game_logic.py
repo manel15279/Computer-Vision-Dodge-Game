@@ -238,11 +238,11 @@ upper_red = np.array([10, 255, 255])
 speed = 5
 
 last_enemy_time = 0  # Variable to track the time when the last enemy was displayed
-enemy_delay = 0.6
+enemy_delay = 0.8
 
 nbr_enemies = 30
 vision = False
-
+game_over = False
 while True:
 
     ret, frame = VideoCap.read()
@@ -252,8 +252,8 @@ while True:
     img = cv2.imread("bg.png") 
 
     if game_mode:
-        cv2.putText(img, "Score: {}".format(score), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
-        cv2.putText(img, "Speed: {}".format(speed), (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
+        cv2.putText(img, "Score: {}".format(score), (10, 20), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0, 2, 29), 1, cv2.LINE_AA)
+        cv2.putText(img, "Speed: {}".format(speed), (10, 40), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0, 2, 29), 1, cv2.LINE_AA)
 
         if random.randint(0, nbr_enemies) == 0 and time.time() - last_enemy_time > enemy_delay:
             border_enemy_left = BorderEnemy(0, speed)
@@ -271,6 +271,7 @@ while True:
         for enemy in enemies:
             if enemy.collision(player):
                 enemies = []
+                game_over = True
                 game_mode = False
             elif enemy.out_of_bounds(height):
                 enemies.remove(enemy)
@@ -285,7 +286,13 @@ while True:
         player.display(img)
 
     else:
-        img[:, :] = [0, 0, 255]  # Red background
+        img[:, :] = [163, 241, 255]
+        if game_over:  
+            cv2.putText(img, "GAME OVER !", (80, 240), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0, 2, 29), 1, cv2.LINE_AA)
+        else:
+            cv2.putText(img, "BRICK RACING GAME", (16, 180), cv2.FONT_HERSHEY_DUPLEX, 0.7, (0, 2, 29), 1, cv2.LINE_AA)
+            cv2.putText(img, "Press <SPACE> to start", (50, 300), cv2.FONT_HERSHEY_DUPLEX, 0.4, (0, 2, 29), 1, cv2.LINE_AA)
+
 
     
     #Concatenate images verticall

@@ -12,7 +12,7 @@ import cv2
 import numpy as np
 import time
 
-lo = np.array([60,50,50])
+lo = np.array([53,50,50])
 hi = np.array([180,255,255])
 def erode(mask,kernel):
     ym,xm=kernel.shape
@@ -109,18 +109,17 @@ def resize(img):
      for y in range(0,int(img.shape[0]/2.5)):
          for x in range(0,int(img.shape[1]/2.5)):
              img2[y,x,:]=img[int(y*2.5),int(x*2.5),:]
-     print(img2.shape)
      return img2
-
-        
 
 
 class Player:
     def __init__(self, width, height):
-        self.w = 50
-        self.h = 50
+        self.w = 40
+        self.h = 40
         self.x = width // 2
         self.y = height - self.h
+        self.player_character = cv2.imread("chicken.png", cv2.IMREAD_UNCHANGED)  
+
 
     def move_left(self):
         self.x = max(0, self.x - 20)  # Ensure the player stays within the left border
@@ -130,15 +129,22 @@ class Player:
 
 
     def display(self, img):
-        cv2.rectangle(img, (self.x, self.y), (self.x + self.w, self.y + self.h), (0, 0, 255), -1)
+        player_character_rgb = self.player_character[:, :, :3]
+        y_start = max(0, self.y)
+        y_end = min(img.shape[0], self.y + self.h)
+        x_start = max(0, self.x)
+        x_end = min(img.shape[1], self.x + self.w)
+
+        img[y_start:y_end, x_start:x_end, :] = player_character_rgb[:y_end - y_start, :x_end - x_start, :]
 
 class Enemy:
     def __init__(self, width, speed):
-        self.w = 50
-        self.h = 50
-        self.x = random.randint(25, width - 25)
+        self.w = 40
+        self.h = 40
+        self.x = random.randint(28, width - 28)
         self.y = 0 - self.h
         self.speed = speed
+        self.enemy_character = cv2.imread("fox.png", cv2.IMREAD_UNCHANGED)
 
     def collision(self, obj):
         x_overlap = max(0, min(obj.x + obj.w, self.x + self.w) - max(obj.x, self.x))
@@ -152,16 +158,26 @@ class Enemy:
         return False
 
     def display(self, img):
-        self.y += self.speed
-        cv2.rectangle(img, (self.x, self.y), (self.x + self.w, self.y + self.h), (0, 0, 0), -1)
+        self.y += self.speed  
+
+        # Check if the updated position is still within the valid range of the image
+        if 0 <= self.y < img.shape[0]:
+            enemy_character_rgb = self.enemy_character[:, :, :3]
+            y_start = max(0, self.y)
+            y_end = min(img.shape[0], self.y + self.h)
+            x_start = max(0, self.x)
+            x_end = min(img.shape[1], self.x + self.w)
+
+            img[y_start:y_end, x_start:x_end, :] = enemy_character_rgb[:y_end - y_start, :x_end - x_start, :]
 
 class BorderEnemy:
     def __init__(self, x, speed):
-        self.w = 25
-        self.h = 25
+        self.w = 28
+        self.h = 28
         self.x = x
         self.y = random.randint(-height, 0)
         self.speed = speed
+        self.border_enemy_character = cv2.imread("tree.png", cv2.IMREAD_UNCHANGED)
 
     def collision(self, obj):
         x_overlap = max(0, min(obj.x + obj.w, self.x + self.w) - max(obj.x, self.x))
@@ -175,14 +191,23 @@ class BorderEnemy:
         return False
 
     def display(self, img):
-        self.y += self.speed
-        cv2.rectangle(img, (self.x, self.y), (self.x + self.w, self.y + self.h), (0, 0, 0), -1)
+        self.y += self.speed  
+
+        # Check if the updated position is still within the valid range of the image
+        if 0 <= self.y < img.shape[0]:
+            border_enemy_character_rgb = self.border_enemy_character[:, :, :3]
+            y_start = max(0, self.y)
+            y_end = min(img.shape[0], self.y + self.h)
+            x_start = max(0, self.x)
+            x_end = min(img.shape[1], self.x + self.w)
+
+            img[y_start:y_end, x_start:x_end, :] = border_enemy_character_rgb[:y_end - y_start, :x_end - x_start, :]
+        
 def resize(img):
      img2=np.zeros(((int(img.shape[0]/2.5))+1,(int(img.shape[1]//2.5))+1,3),img.dtype)
      for y in range(0,int(img.shape[0]/2.5)):
          for x in range(0,int(img.shape[1]/2.5)):
              img2[y,x,:]=img[int(y*2.5),int(x*2.5),:]
-     print(img2.shape)
      return img2
 def Object_Color_Detection(image, surfacemin, surfacemax, lo, hi):
     points = []
@@ -216,6 +241,7 @@ last_enemy_time = 0  # Variable to track the time when the last enemy was displa
 enemy_delay = 0.6
 
 nbr_enemies = 30
+vision = False
 
 while True:
 
@@ -223,7 +249,7 @@ while True:
     frame=resize(frame)
     cv2.flip(frame,1, frame)
 
-    img = np.ones((height, width, 3), dtype=np.uint8) * 255  # White background
+    img = cv2.imread("bg.png") 
 
     if game_mode:
         cv2.putText(img, "Score: {}".format(score), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
@@ -262,12 +288,13 @@ while True:
         img[:, :] = [0, 0, 255]  # Red background
 
     
-    # Concatenate images verticall
-    mask = detect_inrange(frame)
-    centre=center(mask)
-    cv2.circle(frame, centre, 5, (0, 0, 255),-1)
-    player.x=centre[0]
-    #player.y=centre[1]
+    #Concatenate images verticall
+    if vision:
+        mask = detect_inrange(frame)
+        centre=center(mask)
+        cv2.circle(frame, centre, 5, (0, 0, 255),-1)
+        player.x=centre[0]
+   
     concatenated_image = cv2.vconcat([img, frame])
 
     
@@ -281,9 +308,12 @@ while True:
         speed = 10
         game_mode = True
         nbr_enemies = 30
-    elif key == ord('a'):
-        player.move_left()
-    elif key == ord('d'):
-        player.move_right(width)
+    if key == ord('v'):
+        vision=True
+    if not vision:
+        if key == ord('a'):
+            player.move_left()
+        elif key == ord('d'):
+            player.move_right(width)
 
 cv2.destroyAllWindows()
