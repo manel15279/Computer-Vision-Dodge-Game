@@ -283,12 +283,14 @@ while True:
                     for enemy in enemies:
                         enemy.speed = speed
 
+
         player.display(img)
 
     else:
         img[:, :] = [163, 241, 255]
         if game_over:  
             cv2.putText(img, "GAME OVER !", (80, 240), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0, 2, 29), 1, cv2.LINE_AA)
+            cv2.putText(img, "Score: {}".format(score), (100, 240), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0, 2, 29), 1, cv2.LINE_AA)
         else:
             cv2.putText(img, "BRICK RACING GAME", (16, 180), cv2.FONT_HERSHEY_DUPLEX, 0.7, (0, 2, 29), 1, cv2.LINE_AA)
             cv2.putText(img, "Press <SPACE> to start", (50, 300), cv2.FONT_HERSHEY_DUPLEX, 0.4, (0, 2, 29), 1, cv2.LINE_AA)
