@@ -248,23 +248,25 @@ while True:
 
     img = cv2.imread("bg.png") 
 
+    # Si le jeu est activé
     if game_mode:
+        # A ffichage du score et de la vitesse en haut de l'interface
         cv2.putText(img, "Score: {}".format(score), (10, 20), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0, 2, 29), 1, cv2.LINE_AA)
         cv2.putText(img, "Speed: {}".format(speed), (10, 40), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0, 2, 29), 1, cv2.LINE_AA)
-
+        # Génération aléatoire des ennemies (centre et bors)
         if random.randint(0, nbr_enemies) == 0 and time.time() - last_enemy_time > enemy_delay:
             border_enemy_left = BorderEnemy(0, speed)
             border_enemy_right = BorderEnemy(width - border_enemy_left.w, speed)
             enemies.append(Enemy(width - border_enemy_left.w - border_enemy_right.w, speed))
             enemies.append(border_enemy_left)
             enemies.append(border_enemy_right)
-            last_enemy_time = time.time()  # Update the last enemy display time
+            last_enemy_time = time.time()  
 
-        # Update enemy positions first
+        # Affichage des ennemies
         for enemy in enemies:
             enemy.display(img)
 
-        # Check for collisions or out-of-bounds after updating positions
+        # verifier les collision ou les ennemi qui sont hors bord verticalement 
         for enemy in enemies:
             if enemy.collision(player):
                 enemies = []
@@ -272,8 +274,8 @@ while True:
                 game_mode = False
             elif enemy.out_of_bounds(height):
                 enemies.remove(enemy)
-                score += 1
-                if score % 10 == 0:
+                score += 1              # Augmenter le score de 1 pour chaque ennemi éliminé
+                if score % 10 == 0:           # Augmentation de la vitesse et du nombre d'ennemies si le score dépasse un certain seuil 
                     speed += 1
                     if nbr_enemies > 5:
                         nbr_enemies -= 2
@@ -281,6 +283,8 @@ while True:
                         enemy.speed = speed
 
         player.display(img)
+
+    # Si le jeu est désactive (game over ou bien on a pas encore commencer)
     else:
         
         if game_over:  
@@ -327,7 +331,8 @@ while True:
     key = cv2.waitKey(10)
     if key == ord('e'):
         break
-    elif key == ord(' '):  # Space key to start/restart the game
+    elif key == ord(' '):  # ESPACE pour débuter le jeu 
+        # Re-Initialisation des parametres du jeu apres game over
         score = 0
         speed = 10
         game_mode = True
