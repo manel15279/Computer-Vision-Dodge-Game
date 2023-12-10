@@ -12,8 +12,9 @@ import cv2
 import numpy as np
 import time
 
-lo = np.array([53,50,50])
-hi = np.array([180,255,255])
+lo = np.array([43,50,50]) # HSV (teinte, saturation, valeur)
+hi = np.array([85,255,255])
+
 def erode(mask,kernel):
     ym,xm=kernel.shape
     yi,xi=mask.shape
