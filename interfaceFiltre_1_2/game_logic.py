@@ -242,16 +242,18 @@ enemy_delay = 0.6
 
 nbr_enemies = 30
 vision = False
-
+vv=False
 while True:
 
     ret, frame = VideoCap.read()
     frame=resize(frame)
     cv2.flip(frame,1, frame)
 
-    img = cv2.imread("bg.png") 
-
-    if game_mode:
+    img =np.zeros((480,257,3),dtype=np.uint8)
+    img[:,:,1]=80
+    
+    
+    if game_mode:#amelioration+interface beauty
         cv2.putText(img, "Score: {}".format(score), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
         cv2.putText(img, "Speed: {}".format(speed), (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
 
@@ -294,7 +296,9 @@ while True:
         centre=center(mask)
         cv2.circle(frame, centre, 5, (0, 0, 255),-1)
         player.x=centre[0]
-   
+        
+    if vv:
+        player.y=height-40-(frame.shape[0]- centre[1])
     concatenated_image = cv2.vconcat([img, frame])
 
     
@@ -310,10 +314,15 @@ while True:
         nbr_enemies = 30
     if key == ord('v'):
         vision=True
+    if key == ord('f'):
+        vision=True
+        vv=True
     if not vision:
         if key == ord('a'):
             player.move_left()
         elif key == ord('d'):
             player.move_right(width)
+  
+
 
 cv2.destroyAllWindows()
