@@ -223,11 +223,11 @@ def display_second_image6(image_path):
 
 
 def display_second_image6_1(image_path):
-    kernel = [
+    kernel = np.array([
         [1, 0, 1],
         [0, 1, 0],
         [1, 0, 1]
-    ]
+    ])
     seuil = 128
     BN = function_Interface.seuillage_binaire(image_path, seuil)
     image_filtree = function_Interface.dilation(BN, kernel)
@@ -307,7 +307,7 @@ def button_function_2(img):
     #import filtreMedian
     display_image_on_canvas(img)
     # Wait for 3 seconds
-    root.after(1000, lambda: display_second_image2(img))
+    root.after(500, lambda: display_second_image2(img))
 
 def button_function_3(img):
     #import filtreGradient
@@ -348,9 +348,9 @@ def button_function_8(img):
 def button_function_9(img):
     display_image_on_canvas(img)
     # Wait for 3 seconds
-    root.after(100, lambda: display_second_image9(img)) 
+    root.after(10, lambda: display_second_image9(img)) 
 
-
+ 
 def close():
     root.destroy()
     subprocess.run(["python", "game_logic.py"])
@@ -388,7 +388,7 @@ generate_button7 = ctk.CTkButton(input_frame2, text="Closing/Opening", command=l
 generate_button7.grid(row=9, column=0, columnspan=2, sticky="news", padx=10, pady=10)
 generate_button8 = ctk.CTkButton(input_frame2, text="Prewitt(H/V)", command=lambda: button_function_8('univer.jpg'),fg_color="#287271",hover_color="#2a9d8f")
 generate_button8.grid(row=10, column=0, columnspan=2, sticky="news", padx=10, pady=10)
-generate_button9 = ctk.CTkButton(input_frame2, text="Sobel", command=lambda: button_function_9('xford.jpg'),fg_color="#287271",hover_color="#2a9d8f")
+generate_button9 = ctk.CTkButton(input_frame2, text="Sobel", command=lambda: button_function_9('jardin.jpg'),fg_color="#287271",hover_color="#2a9d8f")
 generate_button9.grid(row=11, column=0, columnspan=2, sticky="news", padx=10, pady=10)
 
 
