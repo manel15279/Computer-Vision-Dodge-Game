@@ -242,32 +242,19 @@ enemy_delay = 0.8
 
 nbr_enemies = 30
 vision = False
-<<<<<<< HEAD:game_logic.py
 game_over = False
-=======
 vv=False
->>>>>>> 060de7824eb148cc5c33531a43298f6198d122a0:interfaceFiltre_1_2/game_logic.py
 while True:
 
     ret, frame = VideoCap.read()
     frame=resize(frame)
     cv2.flip(frame,1, frame)
 
-<<<<<<< HEAD:game_logic.py
     img = cv2.imread("bg.png") 
 
     if game_mode:
         cv2.putText(img, "Score: {}".format(score), (10, 20), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0, 2, 29), 1, cv2.LINE_AA)
         cv2.putText(img, "Speed: {}".format(speed), (10, 40), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0, 2, 29), 1, cv2.LINE_AA)
-=======
-    img =np.zeros((480,257,3),dtype=np.uint8)
-    img[:,:,1]=80
-    
-    
-    if game_mode:#amelioration+interface beauty
-        cv2.putText(img, "Score: {}".format(score), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
-        cv2.putText(img, "Speed: {}".format(speed), (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
->>>>>>> 060de7824eb148cc5c33531a43298f6198d122a0:interfaceFiltre_1_2/game_logic.py
 
         if random.randint(0, nbr_enemies) == 0 and time.time() - last_enemy_time > enemy_delay:
             border_enemy_left = BorderEnemy(0, speed)
@@ -315,13 +302,9 @@ while True:
         centre=center(mask)
         cv2.circle(frame, centre, 5, (0, 0, 255),-1)
         player.x=centre[0]
-<<<<<<< HEAD:game_logic.py
-   
-=======
         
     if vv:
         player.y=height-40-(frame.shape[0]- centre[1])
->>>>>>> 060de7824eb148cc5c33531a43298f6198d122a0:interfaceFiltre_1_2/game_logic.py
     concatenated_image = cv2.vconcat([img, frame])
 
     
@@ -337,21 +320,15 @@ while True:
         nbr_enemies = 30
     if key == ord('v'):
         vision=True
-<<<<<<< HEAD:game_logic.py
-=======
     if key == ord('f'):
         vision=True
         vv=True
->>>>>>> 060de7824eb148cc5c33531a43298f6198d122a0:interfaceFiltre_1_2/game_logic.py
     if not vision:
         if key == ord('a'):
             player.move_left()
         elif key == ord('d'):
             player.move_right(width)
-<<<<<<< HEAD:game_logic.py
-=======
   
 
->>>>>>> 060de7824eb148cc5c33531a43298f6198d122a0:interfaceFiltre_1_2/game_logic.py
 
 cv2.destroyAllWindows()
