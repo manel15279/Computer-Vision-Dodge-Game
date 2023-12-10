@@ -656,3 +656,23 @@ def resize(img):
              img2[y,x,:]=img[int(y*2.5),int(x*2.5),:]
    
      return img2
+
+def dilateV(frame,background,mask,kernel):
+    y=0
+    ym,xm=kernel.shape
+    m=xm//2
+    image=frame[:,:]
+    for y in range(mask.shape[0]):
+        for x in range(mask.shape[1]):
+             if mask[y,x]==255:
+                 image[y,x]=background[y,x]
+             else:
+                if  not( y<m or y>(mask.shape[0]-1-m) or x<m or x>(mask.shape[1]-1-m)):
+                    v=mask[y-m:y+m+1,x-m:x+m+1] 
+                    for h in range(ym):
+                        for w in range(xm): 
+                            if(not kernel[h,w]*v[h,w]==0):
+                                image[y,x]=background[y,x]
+                                break
+                        if(not kernel[h,w]*v[h,w]==0): 
+                            break

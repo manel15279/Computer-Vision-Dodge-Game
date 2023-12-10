@@ -1,4 +1,5 @@
 import subprocess
+import time
 import customtkinter as ctk
 import tkinter
 import tkinter as tk
@@ -8,6 +9,7 @@ import cv2
 import numpy as np
 import threading
 
+#====================objectDetection==============================
 stop_detection_flag = False
 def update_canvas(frame, mask):
     global frame_photo, mask_photo
@@ -75,7 +77,82 @@ def button_function_11():
     # Exécuter object_Detection_Color dans un thread
     threading.Thread(target=object_Detection_Color).start()
 
-#============================
+#=================================================Invisibility
+
+def invisibility():
+    global stop_detection_flag
+    stop_detection_flag = False
+
+    VideoCap = cv2.VideoCapture(0)
+    time.sleep(2)
+    ret, background = VideoCap.read()
+    cv2.flip(background,1, background)
+    background=function_Interface.resize(background)
+    VideoCap.release()
+    VideoCap = cv2.VideoCapture(0)
+    while True:
+        if not VideoCap.isOpened():
+            print("Video capture is not open.")
+            break
+        ret, frame = VideoCap.read()
+        cv2.flip(frame,1, frame)
+        frame=function_Interface.resize(frame)
+        mask = function_Interface.detect_inrange(frame)
+        function_Interface.dilateV(frame,background,mask,np.ones((5,5)))
+    
+        if mask is not None:
+            #cv2.imshow('mask', mask)
+            #cv2.imshow('frame', frame)
+            update_canvas(frame, mask)
+        # Break out of the loop if the stop_detection_flag is True
+        if stop_detection_flag:
+            break
+
+        if cv2.waitKey(10) & 0xFF == ord('q'):
+            break
+    VideoCap.release()
+    cv2.destroyAllWindows()
+
+def button_function_12():
+    # Exécuter object_Detection_Color dans un thread
+    threading.Thread(target=invisibility).start()
+
+#============================Fond Vert
+def fondVert():
+    global stop_detection_flag
+    stop_detection_flag = False
+    VideoCap = cv2.VideoCapture(0)
+    
+    image=cv2.imread("univer.jpg", cv2.IMREAD_COLOR)
+    image=function_Interface.resize(image)
+    while True:
+        ret, frame = VideoCap.read()
+        cv2.flip(frame,1, frame)
+        frame=function_Interface.resize(frame)
+        mask = function_Interface.detect_inrange(frame)
+    
+        function_Interface.dilateV(frame,image,mask,np.ones((5,5)))
+
+        if mask is not None:
+            #cv2.imshow('mask', mask)
+            #cv2.imshow('frame', frame)
+            update_canvas(frame, mask)
+
+        if stop_detection_flag:
+            break
+
+        if cv2.waitKey(10) & 0xFF == ord('q'):
+            break
+
+    VideoCap.release()
+    cv2.destroyAllWindows()
+
+
+def button_function_13():
+    # Exécuter object_Detection_Color dans un thread
+    threading.Thread(target=fondVert).start()
+
+
 def display_image_on_canvas(image_path):
     # Open the image file
     image = Image.open(image_path)
@@ -276,7 +353,7 @@ def button_function_9(img):
 
 def close():
     root.destroy()
-    subprocess.run(["python", "test.py"])
+    subprocess.run(["python", "game_logic.py"])
 
 
 
@@ -284,7 +361,7 @@ def reset():
     # Add reset functionality here
     pass
 
-root = ctk.CTk()
+root = ctk.CTk(fg_color="#264653")
 root.title("Filters Test")
 
 screen_width = 900
@@ -293,26 +370,25 @@ screen_height = 600
 root.geometry(f"{screen_width}x{screen_height}")
 
 ctk.set_appearance_mode("dark")
-
-input_frame2 = ctk.CTkFrame(root)
+input_frame2 = ctk.CTkFrame(root,fg_color="#287271")
 input_frame2.pack(side="left", expand=True, padx=20, pady=20)
-generate_button1 = ctk.CTkButton(input_frame2, text="Moyen", command=lambda: button_function_1('noisy.jpg'))
+generate_button1 = ctk.CTkButton(input_frame2, text="Moyen", command=lambda: button_function_1('noisy.jpg'),fg_color="#287271",hover_color="#2a9d8f")
 generate_button1.grid(row=3, column=0, columnspan=2, sticky="news", padx=10, pady=10)
-generate_button2 = ctk.CTkButton(input_frame2, text="Median", command=lambda: button_function_2('noisy.jpg'))
+generate_button2 = ctk.CTkButton(input_frame2, text="Median", command=lambda: button_function_2('noisy.jpg'),fg_color="#287271",hover_color="#2a9d8f")
 generate_button2.grid(row=4, column=0, columnspan=2, sticky="news", padx=10, pady=10)
-generate_button3 = ctk.CTkButton(input_frame2, text="Gradient", command=lambda: button_function_3('univer.jpg'))
+generate_button3 = ctk.CTkButton(input_frame2, text="Gradient", command=lambda: button_function_3('univer.jpg'),fg_color="#287271",hover_color="#2a9d8f")
 generate_button3.grid(row=6, column=0, columnspan=2, sticky="news", padx=10, pady=10)
-generate_button4 = ctk.CTkButton(input_frame2, text="Gaussien", command=lambda: button_function_4('noisy.jpg'))
+generate_button4 = ctk.CTkButton(input_frame2, text="Gaussien", command=lambda: button_function_4('noisy.jpg'),fg_color="#287271",hover_color="#2a9d8f")
 generate_button4.grid(row=5, column=0, columnspan=2, sticky="news", padx=10, pady=10)
-generate_button5 = ctk.CTkButton(input_frame2, text="Laplacien", command=lambda: button_function_5('univer.jpg'))
+generate_button5 = ctk.CTkButton(input_frame2, text="Laplacien", command=lambda: button_function_5('univer.jpg'),fg_color="#287271",hover_color="#2a9d8f")
 generate_button5.grid(row=7, column=0, columnspan=2, sticky="news", padx=10, pady=10)
-generate_button6 = ctk.CTkButton(input_frame2, text="Erode/Dilate", command=lambda: button_function_6('univer.jpg'))
+generate_button6 = ctk.CTkButton(input_frame2, text="Erode/Dilate", command=lambda: button_function_6('univer.jpg'),fg_color="#287271",hover_color="#2a9d8f")
 generate_button6.grid(row=8, column=0, columnspan=2, sticky="news", padx=10, pady=10)
-generate_button7 = ctk.CTkButton(input_frame2, text="Closing/Opening", command=lambda: button_function_7('univer.jpg'))
+generate_button7 = ctk.CTkButton(input_frame2, text="Closing/Opening", command=lambda: button_function_7('univer.jpg'),fg_color="#287271",hover_color="#2a9d8f")
 generate_button7.grid(row=9, column=0, columnspan=2, sticky="news", padx=10, pady=10)
-generate_button8 = ctk.CTkButton(input_frame2, text="Prewitt(H/V)", command=lambda: button_function_8('univer.jpg'))
+generate_button8 = ctk.CTkButton(input_frame2, text="Prewitt(H/V)", command=lambda: button_function_8('univer.jpg'),fg_color="#287271",hover_color="#2a9d8f")
 generate_button8.grid(row=10, column=0, columnspan=2, sticky="news", padx=10, pady=10)
-generate_button9 = ctk.CTkButton(input_frame2, text="Sobel", command=lambda: button_function_9('xford.jpg'))
+generate_button9 = ctk.CTkButton(input_frame2, text="Sobel", command=lambda: button_function_9('xford.jpg'),fg_color="#287271",hover_color="#2a9d8f")
 generate_button9.grid(row=11, column=0, columnspan=2, sticky="news", padx=10, pady=10)
 
 
@@ -326,22 +402,24 @@ def stop():
 def clean():
     canvas.delete("all")
 
-input_frame3 = ctk.CTkFrame(root)
+input_frame3 = ctk.CTkFrame(root,fg_color="#287271")
 input_frame3.pack(side="left", expand=True, padx=20, pady=20)
-generate_button10 = ctk.CTkButton(input_frame3, text="Jeu", command=close)
-generate_button10.grid(row=13, column=0, columnspan=2, sticky="news", padx=10, pady=10)
-generate_button11 = ctk.CTkButton(input_frame3, text="ObjectDetection", command=button_function_11)
+generate_button10 = ctk.CTkButton(input_frame3, text="Jeu", command=close,fg_color="#287271",hover_color="#2a9d8f")
+generate_button10.grid(row=15, column=0, columnspan=2, sticky="news", padx=10, pady=10)
+generate_button14 = ctk.CTkButton(input_frame3, text="Invisibility", command=button_function_12,fg_color="#287271",hover_color="#2a9d8f")
+generate_button14.grid(row=13, column=0, columnspan=2, sticky="news", padx=10, pady=10)
+generate_button11 = ctk.CTkButton(input_frame3, text="ObjectDetection", command=button_function_11,fg_color="#287271",hover_color="#2a9d8f")
 generate_button11.grid(row=12, column=0, columnspan=2, sticky="news", padx=10, pady=10)
-generate_button12 = ctk.CTkButton(input_frame3, text="Stop", command=stop)
-generate_button12.grid(row=14, column=0, columnspan=2, sticky="news", padx=10, pady=10)
-generate_button13 = ctk.CTkButton(input_frame3, text="Clean", command=clean)
-generate_button13.grid(row=15, column=0, columnspan=2, sticky="news", padx=10, pady=10)
+generate_button15 = ctk.CTkButton(input_frame3, text="FondVert", command=button_function_13,fg_color="#287271",hover_color="#2a9d8f")
+generate_button15.grid(row=14, column=0, columnspan=2, sticky="news", padx=10, pady=10)
+generate_button12 = ctk.CTkButton(input_frame3, text="Stop", command=stop,fg_color="#287271",hover_color="#2a9d8f")
+generate_button12.grid(row=16, column=0, columnspan=2, sticky="news", padx=10, pady=10)
+generate_button13 = ctk.CTkButton(input_frame3, text="Clean", command=clean,fg_color="#287271",hover_color="#2a9d8f")
+generate_button13.grid(row=17, column=0, columnspan=2, sticky="news", padx=10, pady=10)
 
 
 canvas = tkinter.Canvas(root, width=740, height=screen_height)
-canvas.pack(side="right")
-
-
+canvas.pack(expand=True, fill="both", padx=20, pady=20)
 
 
 

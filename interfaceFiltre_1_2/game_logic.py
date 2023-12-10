@@ -1,19 +1,17 @@
 import cv2
 import numpy as np
+import random
+import time
 
-def opening(image, kernel):
-    # Erosion followed by dilation
-    eroded = cv2.erode(image, kernel, iterations=1)
-    opened = cv2.dilate(eroded, kernel, iterations=1)
-    return opened
+##optimisé
+#vert
+#boule
+#taille de frame en entrée
 
-def closing(image, kernel):
-    # Dilation followed by erosion
-    dilated = cv2.dilate(image, kernel, iterations=1)
-    closed = cv2.erode(dilated, kernel, iterations=1)
-    return closed
+import cv2
+import numpy as np
+import time
 
-<<<<<<< HEAD
 lo = np.array([53,50,50])
 hi = np.array([180,255,255])
 def erode(mask,kernel):
@@ -36,17 +34,68 @@ def erode(mask,kernel):
                         if(mask2[y,x]==0): 
                             break
     return mask2
-=======
-# Example usage
-image_path = "univerNB.jpg"  # Replace with the path to your image
-input_image = cv2.imread(image_path, cv2.IMREAD_GRAYSCALE)
->>>>>>> 060de7824eb148cc5c33531a43298f6198d122a0
 
-# Define the kernel (structuring element)
-kernel_size = 5
-kernel = np.ones((kernel_size, kernel_size), np.uint8)
+# def erode(img,kernel):
+    ym,xm=kernel.shape
+    xi,yi=img.shape
+    m=xm//2
+    mask2=np.zeros(img.shape,img.dtype)
+    for y in range(xi):
+        for x in range(yi):   
+             if not(y<m or y>(xi-1-m) or x<m or x>(yi-1-m)):
+                v=img[y-m:y+m+1,x-m:x+m+1] 
+                b=False
+                for h in range(ym):
+                     for w in range(xm): 
+                        if(v[h,w]<kernel[h,w]):
+                             b=True
+                             break
+                     if(b): 
+                         break
+                if(not b): 
+                    mask2[y,x]=255
+    return mask2
+def inRange(img,lo,hi):
+    mask=np.zeros((img.shape[0],img.shape[1]))
+    for y in range(img.shape[0]):
+         for x in range(img.shape[1]):
+              if(img[y,x,0]<=hi[0] and img[y,x,0]>=lo[0] and img[y,x,2]<=hi[2] and img[y,x,2]>=lo[2] and img[y,x,1]<=hi[1] and img[y,x,1]>=lo[1] ):
+                    mask[y,x]=255
+    return mask
+def center(img):
+    b=True
+    c=True
+    premiery=0
+    derniery=img.shape[0]
+    premierx=0
+    dernierx=img.shape[1]
+    for y in range(img.shape[0]):
+        for x in range(img.shape[1]):
+            if(b and img[y,x]==255):
+                b=False
+                premiery=y
+            if( c and img[img.shape[0]-y-1,x]==255):
+                c=False
+                derniery=img.shape[0]-y-1
+            if(not b and not c):
+                break
+        if(not b and not c):
+            break    
+    b=True
+    c=True
+    for x in range(img.shape[1]):
+        for y in range(img.shape[0]):
+            if(img[y,x]==255 and b):
+                b=False
+                premierx=x
+            if(img[y,img.shape[1]-x-1]==255 and c):
+                c=False
+                dernierx=img.shape[1]-x-1
+            if(not b and not c):
+                break
+        if(not b and not c):
+            break
 
-<<<<<<< HEAD
     x=((dernierx-premierx)/2)+ premierx
     y=((derniery-premiery)/2)+ premiery
     return (int(x),int(y))
@@ -189,22 +238,36 @@ upper_red = np.array([10, 255, 255])
 speed = 5
 
 last_enemy_time = 0  # Variable to track the time when the last enemy was displayed
-enemy_delay = 0.6
+enemy_delay = 0.8
 
 nbr_enemies = 30
 vision = False
-
+<<<<<<< HEAD:game_logic.py
+game_over = False
+=======
+vv=False
+>>>>>>> 060de7824eb148cc5c33531a43298f6198d122a0:interfaceFiltre_1_2/game_logic.py
 while True:
 
     ret, frame = VideoCap.read()
     frame=resize(frame)
     cv2.flip(frame,1, frame)
 
+<<<<<<< HEAD:game_logic.py
     img = cv2.imread("bg.png") 
 
     if game_mode:
+        cv2.putText(img, "Score: {}".format(score), (10, 20), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0, 2, 29), 1, cv2.LINE_AA)
+        cv2.putText(img, "Speed: {}".format(speed), (10, 40), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0, 2, 29), 1, cv2.LINE_AA)
+=======
+    img =np.zeros((480,257,3),dtype=np.uint8)
+    img[:,:,1]=80
+    
+    
+    if game_mode:#amelioration+interface beauty
         cv2.putText(img, "Score: {}".format(score), (10, 20), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
         cv2.putText(img, "Speed: {}".format(speed), (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
+>>>>>>> 060de7824eb148cc5c33531a43298f6198d122a0:interfaceFiltre_1_2/game_logic.py
 
         if random.randint(0, nbr_enemies) == 0 and time.time() - last_enemy_time > enemy_delay:
             border_enemy_left = BorderEnemy(0, speed)
@@ -222,6 +285,7 @@ while True:
         for enemy in enemies:
             if enemy.collision(player):
                 enemies = []
+                game_over = True
                 game_mode = False
             elif enemy.out_of_bounds(height):
                 enemies.remove(enemy)
@@ -236,7 +300,13 @@ while True:
         player.display(img)
 
     else:
-        img[:, :] = [0, 0, 255]  # Red background
+        img[:, :] = [163, 241, 255]
+        if game_over:  
+            cv2.putText(img, "GAME OVER !", (80, 240), cv2.FONT_HERSHEY_DUPLEX, 0.5, (0, 2, 29), 1, cv2.LINE_AA)
+        else:
+            cv2.putText(img, "BRICK RACING GAME", (16, 180), cv2.FONT_HERSHEY_DUPLEX, 0.7, (0, 2, 29), 1, cv2.LINE_AA)
+            cv2.putText(img, "Press <SPACE> to start", (50, 300), cv2.FONT_HERSHEY_DUPLEX, 0.4, (0, 2, 29), 1, cv2.LINE_AA)
+
 
     
     #Concatenate images verticall
@@ -245,7 +315,13 @@ while True:
         centre=center(mask)
         cv2.circle(frame, centre, 5, (0, 0, 255),-1)
         player.x=centre[0]
+<<<<<<< HEAD:game_logic.py
    
+=======
+        
+    if vv:
+        player.y=height-40-(frame.shape[0]- centre[1])
+>>>>>>> 060de7824eb148cc5c33531a43298f6198d122a0:interfaceFiltre_1_2/game_logic.py
     concatenated_image = cv2.vconcat([img, frame])
 
     
@@ -261,23 +337,21 @@ while True:
         nbr_enemies = 30
     if key == ord('v'):
         vision=True
+<<<<<<< HEAD:game_logic.py
+=======
+    if key == ord('f'):
+        vision=True
+        vv=True
+>>>>>>> 060de7824eb148cc5c33531a43298f6198d122a0:interfaceFiltre_1_2/game_logic.py
     if not vision:
         if key == ord('a'):
             player.move_left()
         elif key == ord('d'):
             player.move_right(width)
-
-cv2.destroyAllWindows()
+<<<<<<< HEAD:game_logic.py
 =======
-# Perform opening and closing operations
-opened_image = opening(input_image, kernel)
-closed_image = closing(input_image, kernel)
+  
 
-# Display the original, opened, and closed images
-cv2.imshow('Original Image', input_image)
-cv2.imshow('Opened Image', opened_image)
-cv2.imshow('Closed Image', closed_image)
+>>>>>>> 060de7824eb148cc5c33531a43298f6198d122a0:interfaceFiltre_1_2/game_logic.py
 
-cv2.waitKey(0)
 cv2.destroyAllWindows()
->>>>>>> 060de7824eb148cc5c33531a43298f6198d122a0
