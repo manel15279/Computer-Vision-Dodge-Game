@@ -91,7 +91,7 @@ class Player:
         self.h = 40
         self.x = width // 2
         self.y = height - self.h
-        self.player_character = cv2.imread("interfaceFinal\\chicken.png", cv2.IMREAD_UNCHANGED)  
+        self.player_character = cv2.imread("interfaceFinal\\game images\\chicken.png", cv2.IMREAD_UNCHANGED)  
 
 
     def move_left(self):
@@ -117,7 +117,7 @@ class Enemy:
         self.x = random.randint(28, width - 28)
         self.y = 0 - self.h
         self.speed = speed
-        self.enemy_character = cv2.imread("interfaceFinal\\fox.png", cv2.IMREAD_UNCHANGED)
+        self.enemy_character = cv2.imread("interfaceFinal\\game images\\fox.png", cv2.IMREAD_UNCHANGED)
 
     def collision(self, obj):
         x_overlap = max(0, min(obj.x + obj.w, self.x + self.w) - max(obj.x, self.x))
@@ -150,7 +150,7 @@ class BorderEnemy:
         self.x = x
         self.y = random.randint(-height, 0)
         self.speed = speed
-        self.border_enemy_character = cv2.imread("interfaceFinal\\tree.png", cv2.IMREAD_UNCHANGED)
+        self.border_enemy_character = cv2.imread("interfaceFinal\\game images\\tree.png", cv2.IMREAD_UNCHANGED)
 
     def collision(self, obj):
         x_overlap = max(0, min(obj.x + obj.w, self.x + self.w) - max(obj.x, self.x))
@@ -246,7 +246,7 @@ while True:
     frame=resize(frame)
     cv2.flip(frame,1, frame)
 
-    img = cv2.imread("interfaceFinal\\bg.png") 
+    img = cv2.imread("interfaceFinal\\game images\\bg.png") 
 
     # Si le jeu est activé
     if game_mode:

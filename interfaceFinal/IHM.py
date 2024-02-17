@@ -13,8 +13,8 @@ from tkinter import ttk
 # ici
 #======================TRACKBAR===================================
 
-frame=cv2.imread("univer.jpg", cv2.IMREAD_COLOR)
-img_tk=cv2.imread("univer.jpg", cv2.IMREAD_COLOR)
+frame=cv2.imread("interfaceFinal\\filters images\\univer.jpg", cv2.IMREAD_COLOR)
+img_tk=cv2.imread("interfaceFinal\\filters images\\univer.jpg", cv2.IMREAD_COLOR)
 
 # noisy_filtree.jpg  jardin_filtree.jpg  univer_filtree.jpg
 #====================objectDetection==============================
@@ -131,7 +131,7 @@ def fondVert():
     stop_detection_flag = False
     VideoCap = cv2.VideoCapture(0)
     
-    image=cv2.imread("univer.jpg", cv2.IMREAD_COLOR)
+    image=cv2.imread("interfaceFinal\\filters images\\univer.jpg", cv2.IMREAD_COLOR)
     image=FI.resize(image)
     while True:
         ret, frame = VideoCap.read()
@@ -304,9 +304,9 @@ def display_second_image9(image_path):
 
 def button_function_1(img):
     global frame 
-    frame = cv2.imread("noisy_filtree.jpg", cv2.IMREAD_COLOR)
+    frame = cv2.imread("interfaceFinal\\filters images\\noisy_filtree.jpg", cv2.IMREAD_COLOR)
     global img_tk
-    img_tk = cv2.imread("noisy_filtree.jpg", cv2.IMREAD_COLOR)
+    img_tk = cv2.imread("interfaceFinal\\filters images\\noisy_filtree.jpg", cv2.IMREAD_COLOR)
     #import filtreMoyen
     display_image_on_canvas(img)
     # Wait for 3 seconds
@@ -314,9 +314,9 @@ def button_function_1(img):
 
 def button_function_2(img):
     global frame 
-    frame = cv2.imread("noisy_filtree.jpg", cv2.IMREAD_COLOR)
+    frame = cv2.imread("interfaceFinal\\filters images\\noisy_filtree.jpg", cv2.IMREAD_COLOR)
     global img_tk
-    img_tk = cv2.imread("noisy_filtree.jpg", cv2.IMREAD_COLOR)
+    img_tk = cv2.imread("interfaceFinal\\filters images\\noisy_filtree.jpg", cv2.IMREAD_COLOR)
     #import filtreMedian
     display_image_on_canvas(img)
     # Wait for 3 seconds
@@ -324,9 +324,9 @@ def button_function_2(img):
 
 def button_function_3(img):
     global frame 
-    frame = cv2.imread("univer_filtree.jpg", cv2.IMREAD_COLOR)
+    frame = cv2.imread("interfaceFinal\\filters images\\univer_filtree.jpg", cv2.IMREAD_COLOR)
     global img_tk
-    img_tk = cv2.imread("univer_filtree.jpg", cv2.IMREAD_COLOR)
+    img_tk = cv2.imread("interfaceFinal\\filters images\\univer_filtree.jpg", cv2.IMREAD_COLOR)
     #import filtreGradient
     display_image_on_canvas(img)
     # Wait for 3 seconds
@@ -334,9 +334,9 @@ def button_function_3(img):
 
 def button_function_4(img):
     global frame 
-    frame = cv2.imread("noisy_filtree.jpg", cv2.IMREAD_COLOR)
+    frame = cv2.imread("interfaceFinal\\filters images\\noisy_filtree.jpg", cv2.IMREAD_COLOR)
     global img_tk
-    img_tk = cv2.imread("noisy_filtree.jpg", cv2.IMREAD_COLOR)
+    img_tk = cv2.imread("interfaceFinal\\filters images\\noisy_filtree.jpg", cv2.IMREAD_COLOR)
     #import filtreGaussien
     display_image_on_canvas(img)
     # Wait for 3 seconds
@@ -344,9 +344,9 @@ def button_function_4(img):
 
 def button_function_5(img):
     global frame 
-    frame = cv2.imread("univer_filtree.jpg", cv2.IMREAD_COLOR)
+    frame = cv2.imread("interfaceFinal\\filters images\\univer_filtree.jpg", cv2.IMREAD_COLOR)
     global img_tk
-    img_tk = cv2.imread("univer_filtree.jpg", cv2.IMREAD_COLOR)
+    img_tk = cv2.imread("interfaceFinal\\filters images\\univer_filtree.jpg", cv2.IMREAD_COLOR)
     #import laplacien
     display_image_on_canvas(img)
     # Wait for 3 seconds
@@ -354,9 +354,9 @@ def button_function_5(img):
 
 def button_function_6(img):
     global frame 
-    frame = cv2.imread("univer_filtree.jpg", cv2.IMREAD_COLOR)
+    frame = cv2.imread("interfaceFinal\\filters images\\univer_filtree.jpg", cv2.IMREAD_COLOR)
     global img_tk
-    img_tk = cv2.imread("univer_filtree.jpg", cv2.IMREAD_COLOR)
+    img_tk = cv2.imread("interfaceFinal\\filters images\\univer_filtree.jpg", cv2.IMREAD_COLOR)
     #import morpholog1
     display_image_on_canvas(img)
     # Wait for 3 seconds
@@ -364,9 +364,9 @@ def button_function_6(img):
 
 def button_function_7(img):
     global frame 
-    frame = cv2.imread("univer_filtree.jpg", cv2.IMREAD_COLOR)
+    frame = cv2.imread("interfaceFinal\\filters images\\univer_filtree.jpg", cv2.IMREAD_COLOR)
     global img_tk
-    img_tk = cv2.imread("univer_filtree.jpg", cv2.IMREAD_COLOR)
+    img_tk = cv2.imread("interfaceFinal\\filters images\\univer_filtree.jpg", cv2.IMREAD_COLOR)
     #import morpholog2
     display_image_on_canvas(img)
     # Wait for 3 seconds
@@ -374,9 +374,9 @@ def button_function_7(img):
 
 def button_function_8(img):
     global frame 
-    frame = cv2.imread("univer_filtree.jpg", cv2.IMREAD_COLOR)
+    frame = cv2.imread("interfaceFinal\\filters images\\univer_filtree.jpg", cv2.IMREAD_COLOR)
     global img_tk
-    img_tk = cv2.imread("univer_filtree.jpg", cv2.IMREAD_COLOR)
+    img_tk = cv2.imread("interfaceFinal\\filters images\\univer_filtree.jpg", cv2.IMREAD_COLOR)
     #import filtrePrewitt
     display_image_on_canvas(img)
     # Wait for 3 seconds
@@ -384,16 +384,16 @@ def button_function_8(img):
 
 def button_function_9(img):
     global frame 
-    frame = cv2.imread("jardin_filtree.jpg", cv2.IMREAD_COLOR)
+    frame = cv2.imread("interfaceFinal\\filters images\\jardin_filtree.jpg", cv2.IMREAD_COLOR)
     global img_tk
-    img_tk = cv2.imread("jardin_filtree.jpg", cv2.IMREAD_COLOR)
+    img_tk = cv2.imread("interfaceFinal\\filters images\\jardin_filtree.jpg", cv2.IMREAD_COLOR)
     display_image_on_canvas(img)
     # Wait for 3 seconds
     root.after(10, lambda: display_second_image9(img)) 
 
 def close():
     root.destroy()
-    subprocess.run(["python", "game_logic.py"])
+    subprocess.run(["python", "interfaceFinal\\game_logic.py"])
 
 def reset():
     # Add reset functionality here
@@ -410,23 +410,23 @@ root.geometry(f"{screen_width}x{screen_height}")
 ctk.set_appearance_mode("dark")
 input_frame2 = ctk.CTkFrame(root,fg_color="#287271")
 input_frame2.pack(side="left", expand=True, padx=20, pady=20)
-generate_button1 = ctk.CTkButton(input_frame2, text="Moyen", command=lambda: button_function_1('noisy.jpg'),fg_color="#287271",hover_color="#2a9d8f")
+generate_button1 = ctk.CTkButton(input_frame2, text="Moyen", command=lambda: button_function_1('interfaceFinal\\filters images\\noisy.jpg'),fg_color="#287271",hover_color="#2a9d8f")
 generate_button1.grid(row=3, column=0, columnspan=2, sticky="news", padx=10, pady=10)
-generate_button2 = ctk.CTkButton(input_frame2, text="Median", command=lambda: button_function_2('noisy.jpg'),fg_color="#287271",hover_color="#2a9d8f")
+generate_button2 = ctk.CTkButton(input_frame2, text="Median", command=lambda: button_function_2('interfaceFinal\\filters images\\noisy.jpg'),fg_color="#287271",hover_color="#2a9d8f")
 generate_button2.grid(row=4, column=0, columnspan=2, sticky="news", padx=10, pady=10)
-generate_button3 = ctk.CTkButton(input_frame2, text="Gradient", command=lambda: button_function_3('univer.jpg'),fg_color="#287271",hover_color="#2a9d8f")
+generate_button3 = ctk.CTkButton(input_frame2, text="Gradient", command=lambda: button_function_3('interfaceFinal\\filters images\\univer.jpg'),fg_color="#287271",hover_color="#2a9d8f")
 generate_button3.grid(row=6, column=0, columnspan=2, sticky="news", padx=10, pady=10)
-generate_button4 = ctk.CTkButton(input_frame2, text="Gaussien", command=lambda: button_function_4('noisy.jpg'),fg_color="#287271",hover_color="#2a9d8f")
+generate_button4 = ctk.CTkButton(input_frame2, text="Gaussien", command=lambda: button_function_4('interfaceFinal\\filters images\\noisy.jpg'),fg_color="#287271",hover_color="#2a9d8f")
 generate_button4.grid(row=5, column=0, columnspan=2, sticky="news", padx=10, pady=10)
-generate_button5 = ctk.CTkButton(input_frame2, text="Laplacien", command=lambda: button_function_5('univer.jpg'),fg_color="#287271",hover_color="#2a9d8f")
+generate_button5 = ctk.CTkButton(input_frame2, text="Laplacien", command=lambda: button_function_5('interfaceFinal\\filters images\\univer.jpg'),fg_color="#287271",hover_color="#2a9d8f")
 generate_button5.grid(row=7, column=0, columnspan=2, sticky="news", padx=10, pady=10)
-generate_button6 = ctk.CTkButton(input_frame2, text="Erode/Dilate", command=lambda: button_function_6('univer.jpg'),fg_color="#287271",hover_color="#2a9d8f")
+generate_button6 = ctk.CTkButton(input_frame2, text="Erode/Dilate", command=lambda: button_function_6('interfaceFinal\\filters images\\univer.jpg'),fg_color="#287271",hover_color="#2a9d8f")
 generate_button6.grid(row=8, column=0, columnspan=2, sticky="news", padx=10, pady=10)
-generate_button7 = ctk.CTkButton(input_frame2, text="Closing/Opening", command=lambda: button_function_7('univer.jpg'),fg_color="#287271",hover_color="#2a9d8f")
+generate_button7 = ctk.CTkButton(input_frame2, text="Closing/Opening", command=lambda: button_function_7('interfaceFinal\\filters images\\univer.jpg'),fg_color="#287271",hover_color="#2a9d8f")
 generate_button7.grid(row=9, column=0, columnspan=2, sticky="news", padx=10, pady=10)
-generate_button8 = ctk.CTkButton(input_frame2, text="Prewitt(H/V)", command=lambda: button_function_8('univer.jpg'),fg_color="#287271",hover_color="#2a9d8f")
+generate_button8 = ctk.CTkButton(input_frame2, text="Prewitt(H/V)", command=lambda: button_function_8('interfaceFinal\\filters images\\univer.jpg'),fg_color="#287271",hover_color="#2a9d8f")
 generate_button8.grid(row=10, column=0, columnspan=2, sticky="news", padx=10, pady=10)
-generate_button9 = ctk.CTkButton(input_frame2, text="Sobel", command=lambda: button_function_9('jardin.jpg'),fg_color="#287271",hover_color="#2a9d8f")
+generate_button9 = ctk.CTkButton(input_frame2, text="Sobel", command=lambda: button_function_9('interfaceFinal\\filters images\\jardin.jpg'),fg_color="#287271",hover_color="#2a9d8f")
 generate_button9.grid(row=11, column=0, columnspan=2, sticky="news", padx=10, pady=10)
 
 # Function to set the stop_detection_flag
@@ -500,7 +500,7 @@ def threasholdm(frame, th,typee):
                     mask[y,x]=frame[y,x]
     return mask
 # Fonction pour appliquer le seuillage et mettre à jour le canevas
-framee=cv2.imread("xford.jpg", cv2.IMREAD_GRAYSCALE)
+framee=cv2.imread("interfaceFinal\\filters images\\xford.jpg", cv2.IMREAD_GRAYSCALE)
 def afficher():
     global img_tk, th, type, framee
 
