@@ -25,13 +25,13 @@ A university project consisting of two parts: the first part focuses on implemen
 
 ## Part 2: Dodge Game - Chicken Escape 🐔🦊
 
-The Dodge Game is an implementation of computer vision principles in the gaming domain. It offers an immersive gaming experience where players control a pixelated chicken 🐔 to navigate through obstacles 🌳 and avoid fox enemies 🦊 using real-time object detection techniques.
+The Dodge Game is an implementation of computer vision principles in the gaming domain. It offers an immersive gaming experience where players control a chicken 🐔 to navigate through obstacles 🌳 and avoid fox enemies 🦊 using real-time object detection techniques.
 
 ### Features
-- Object Detection Control
-- Dynamic Obstacle Avoidance
-- Scoring System
-- Gameplay Enhancements
+- **Object Detection Control**: Players can control the movement of the character using real-world objects, specifically by manipulating a colored object detected through the camera. The default color is green.
+- **Dynamic Obstacle Avoidance**: The game environment presents dynamic obstacles that the player must navigate through by moving the character horizontally.
+- **Scoring System**: Players accumulate points based on their performance, with increasing difficulty levels as the game progresses.
+- **Enhancements**: Two additional enhancements, such as score tracking or speed variations, contribute to the gameplay experience.
 
 ### Gameplay
 - **Objective**: Navigate the chicken character through obstacles (foxes and trees) by manipulating a colored object detected through the camera.
