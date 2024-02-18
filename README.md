@@ -1,14 +1,16 @@
 # Color-Based Object Detection & Dodge Game Project
 
+## Overview
+
 This repository contains a university project demonstrating the integration of image processing filters, color-based object detection, and dodge game- Chicken Escape 🐔🦊.
 
 <div style="width: 100%; display: flex; justify-content: space-between;">
   <img src="interfaceFinal/screenshots/KalmanFilter.png" width="45%" />
   <img src="interfaceFinal/screenshots/game interface.png" width="45%" /> 
 </div>
-<p>
+<div>
    <img src="interfaceFinal/screenshots/filters interface.png"/> 
-</p>
+</div>
 
 
 
