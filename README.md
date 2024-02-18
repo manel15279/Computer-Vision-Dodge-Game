@@ -2,7 +2,7 @@
 
 ## Overview
 
-This repository contains a university project demonstrating the integration of image processing filters, color-based object detection, and dodge game- Chicken Escape 🐔🦊.
+A university project consisting of two parts: the first part focuses on implementing various image processing filters and color-based object detection algorithms using Python and OpenCV. The second part involves the development of a dodge game - Chicken Escape 🐔🦊, enhanced with real-time object detection for player control.
 
 <div style="width: 100%; display: flex;">
   <img src="interfaceFinal/screenshots/full_interface.png"/>
