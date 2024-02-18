@@ -45,7 +45,7 @@ The Dodge Game is an implementation of computer vision principles in the gaming 
         - "3": Horizontal and vertical movement (Kalman Filter).
     - Object Detection: Control the character's movement by shifting the position of a colored object detected through the camera.
 
-### Installation
+## Installation
 To run the project, follow these steps:
 
 1. Ensure Python is installed on your system.
